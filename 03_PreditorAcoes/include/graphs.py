@@ -10,13 +10,22 @@ import plotly.graph_objs as go
 import plotly.figure_factory as ff
 
 
-def exibirTimeSeries(list_df, list_tickers, x, y, title = 'Title Default', width = 1000, height = 400, xlabel = 'xlabel', ylabel = 'ylabel'):
+def exibirGrafico(list_df, list_tickers, x, y, type, title = 'Title Default', width = 1000, height = 400, xlabel = 'xlabel', ylabel = 'ylabel'):
     fig = go.Figure()
     
     for i in range(len(list_df)):
 
         df = list_df[i]
-        fig.add_traces(go.Line(x=df[x], y=df[y], name=list_tickers[i]))
+
+        if type == 'bar':
+            fig.add_traces(go.Bar(x=df[x], y=df[y], name=list_tickers[i]))
+        elif type == 'line':
+            fig.add_traces(go.Line(x=df[x], y=df[y], name=list_tickers[i]))
+        elif type == 'box':
+            fig.add_traces(go.Box(x=df[x], y=df[y], name=list_tickers[i]))
+        elif type == 'histogram':
+            fig.add_traces(go.Histogram(x=df[y], name=list_tickers[i]))
+
 
     fig.update_layout(
         title=f'<span>{title}</span>', 
@@ -24,7 +33,47 @@ def exibirTimeSeries(list_df, list_tickers, x, y, title = 'Title Default', width
         width=width,
         height=height,
         xaxis=dict(title=f'<span>{xlabel}</span>'),
-        yaxis=dict(title=f'<span>{ylabel}</span>')
+        yaxis=dict(title=f'<span>{ylabel}</span>'),
+        margin=dict(l=10, r=10, t=35, b=0),
     )
+
+    return fig
+
+
+def exibirCanddleStick(df, x, name = 'ticket', title = 'Title Default', width = 1000, height = 400, xlabel = 'xlabel', ylabel = 'ylabel'):
+    trace1 = {
+        'x': df[x],
+        'open': df['Open'],
+        'close': df['Close'],
+        'high': df['High'],
+        'low': df['Low'],
+        'type': 'candlestick',
+        'name': name,
+        'showlegend': False
+    }
+
+    data = [trace1]
+    layout = go.Layout()
+
+    fig = go.Figure(data = data, layout = layout)
+
+
+
+    fig.update_layout(
+        title=f'<span>{title}</span>', 
+        autosize=False,
+        width=width,
+        height=height,
+        xaxis=dict(title=f'<span>{xlabel}</span>'),
+        yaxis=dict(title=f'<span>{ylabel}</span>'),
+        xaxis_rangeslider_visible=False,
+        margin=dict(l=10, r=10, t=35, b=0)
+    )
+
+    return fig
+
+def adicionarMediaMovel(fig, df, x, y = 'Close', name='Default', color='#FF0'):
+
+    fig.add_traces(go.Line(x=df[x], y=df[y], name=name, marker={'color': color}))
 
     return fig

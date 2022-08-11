@@ -79,13 +79,60 @@ def expandirDataFrame(df):
 
 
 
-def agrupaDados(list_df, columns):
+def agrupaDados(list_df, columns, tipo_agrupamento):
     list_res = []
 
+    tipo_agrupamento = 'mean' if tipo_agrupamento == 'Média' else 'sum' if tipo_agrupamento == 'Somatório' else 'median' 
+
     for df in list_df:
-        aux_df = df.groupby(columns, as_index=False).sum()
+        #aux_df = df.groupby(columns, as_index=False).agg([tipo_agrupamento])
+        aux_df = df.groupby(columns, as_index=False).agg(tipo_agrupamento)
         list_res.append(aux_df)
 
     return list_res
+
+
+
+def geraDatas(dados, dataInicial, agrupamento):
+    
+    quantidade = len(dados) + 1
+    if agrupamento == 'Date':
+        freq = 'B'
+        strftime = '%Y-%m-%d'
+
+        datas = pd.date_range(start=dataInicial, periods=quantidade, freq=freq)[1:]
+        datas = pd.to_datetime(datas.strftime(strftime))
+
+    elif agrupamento == 'Week':
+        datas = []
+        valor = dataInicial + 1
+        for i in range(len(dados)):
+            if valor > 53:
+                valor = 0
+            datas.append(valor)
+
+
+    elif agrupamento == 'YearMonth':
+        freq = 'm'
+        strftime = '%Y-%m'
+
+        datas = pd.date_range(start=dataInicial, periods=quantidade, freq=freq)[1:]
+        datas = pd.to_datetime(datas.strftime(strftime))
+
+    elif agrupamento == 'Year':
+        freq = 'Y'
+        strftime = '%Y'
+
+        valor = int(dataInicial) + 1
+        datas = range(valor, valor + len(dados))
+
+
+    df = pd.DataFrame(dados)
+    df[agrupamento] = datas
+    df.columns = ['Previsões', agrupamento]
+
+    df = df[[agrupamento, 'Previsões']]
+
+    return df
 
 

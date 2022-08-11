@@ -21,7 +21,7 @@ def calculaRentabilidade(list_dfs, list_tickers):
 
     return df_rentabilidade
 
-def decompor_serie(df, type):
+def decomporSerie(df, type):
     decomposicao = seasonal_decompose(df[['Close']], period=50, model = type, extrapolate_trend = 'freq')
 
 
@@ -70,5 +70,10 @@ def calculaEstacionaridade(df, column):
 
 def calculaMediaMovel(df, days = 7):
     df['MediaMovel'] = df['Close'].rolling(window = days).mean()
+
+    return df
+
+def calculaDesvioPadrao(df, days = 30):
+    df['DesvioPadrao'] = df['Close'].rolling(window = days).std()
 
     return df

@@ -72,7 +72,7 @@ def exibirCanddleStick(df, x, name = 'ticket', title = 'Title Default', width = 
 
     return fig
 
-def adicionarMediaMovel(fig, df, x, y = 'Close', name='Default', color='#FF0'):
+def adicionarTrace(fig, df, x, y = 'Close', name='Default', color='#FF0'):
 
     fig.add_traces(go.Line(x=df[x], y=df[y], name=name, marker={'color': color}))
 

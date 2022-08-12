@@ -96,24 +96,36 @@ def main_page():
                     for i in range(len(tabs_empresas)):
                         with tabs_empresas[i]:
 
-                            st.write(f"Exibindo Dados do Ticker: {list_selected[i]}")
-                            st.write(list_df_agrupados[i])
+                            tab01, tab02, tab03 = st.tabs(['Dados de Ações', 'Resumo da empresa', 'Notícias'])
+                            with tab01:
 
-                            figCandlestick = exibirCanddleStick(list_df_agrupados[i], column_x, list_selected[i], title='Gráfico Candlestick da ação', width=1000, height=500, xlabel='Período', ylabel='Valores')
-                            
-                            df_mediamovel = calculaMediaMovel(list_df_agrupados[i], days = 7)
-                            figCandlestick = adicionarTrace(figCandlestick, df_mediamovel, x = column_x, y = 'MediaMovel', name= 'Média móvel 7 dias', color = '#FF0')
-                            
-                            df_mediamovel = calculaMediaMovel(list_df_agrupados[i], days = 15)
-                            figCandlestick = adicionarTrace(figCandlestick, df_mediamovel, x = column_x, y = 'MediaMovel', name= 'Média móvel 15 dias', color = '#323ca8')
+                                st.write(f"Exibindo Dados do Ticker: {list_selected[i]}")
+                                st.write(list_df_agrupados[i])
 
-                            df_mediamovel = calculaMediaMovel(list_df_agrupados[i], days = 30)
-                            figCandlestick = adicionarTrace(figCandlestick, df_mediamovel, x = column_x, y = 'MediaMovel', name= 'Média móvel 30 dias', color = '#a8329b')
-                            
+                                figCandlestick = exibirCanddleStick(list_df_agrupados[i], column_x, list_selected[i], title='Gráfico Candlestick da ação', width=1000, height=500, xlabel='Período', ylabel='Valores')
+                                
+                                df_mediamovel = calculaMediaMovel(list_df_agrupados[i], days = 7)
+                                figCandlestick = adicionarTrace(figCandlestick, df_mediamovel, x = column_x, y = 'MediaMovel', name= 'Média móvel 7 dias', color = '#FF0')
+                                
+                                df_mediamovel = calculaMediaMovel(list_df_agrupados[i], days = 15)
+                                figCandlestick = adicionarTrace(figCandlestick, df_mediamovel, x = column_x, y = 'MediaMovel', name= 'Média móvel 15 dias', color = '#323ca8')
 
-                            
-                            
-                            st.write(figCandlestick)
+                                df_mediamovel = calculaMediaMovel(list_df_agrupados[i], days = 30)
+                                figCandlestick = adicionarTrace(figCandlestick, df_mediamovel, x = column_x, y = 'MediaMovel', name= 'Média móvel 30 dias', color = '#a8329b')
+                                
+                                st.write(figCandlestick)
+
+                            with tab02:
+                                st.write('Resumo da empresa')
+
+                            with tab03:
+                                st.write('Notícias')
+
+
+
+
+
+
 
                     st.markdown("""---""")
 

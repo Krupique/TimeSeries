@@ -23,6 +23,7 @@ def coletaDados(list_codigos = [], interval = '1mo', start = '2015-01-01', end='
             aux['Ticket'] = codigo
 
             aux = expandirDataFrame(aux)
+            aux.dropna(inplace=True)
 
             list_dfs.append(aux)
 

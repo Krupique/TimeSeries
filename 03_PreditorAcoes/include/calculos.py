@@ -77,3 +77,17 @@ def calculaDesvioPadrao(df, days = 30):
     df['DesvioPadrao'] = df['Close'].rolling(window = days).std()
 
     return df
+
+
+def currencyFormatting(value):
+    if value / 1000000000 > 1:
+        return f'$ {str(round(value/1000000000, 2))}B'
+    if value / 1000000 > 1:
+        return f'$ {str(round(value/1000000, 2))}M'
+    elif value / 100000 > 1:
+        return f'$ {str(round(value/100000, 2))}KK'
+    elif value / 1000 > 1:
+        return f'$ {str(round(value/10000, 2))}k'
+    else: 
+        return f'$ {str(round(value, 2))}'
+

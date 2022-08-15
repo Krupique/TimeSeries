@@ -77,3 +77,35 @@ def adicionarTrace(fig, df, x, y = 'Close', name='Default', color='#FF0'):
     fig.add_traces(go.Line(x=df[x], y=df[y], name=name, marker={'color': color}))
 
     return fig
+
+
+def exibirGraficoSustentabilidade(x, y, width, height):
+    fig = go.Figure()
+
+    x_value_map ={
+        'socialScore': 'Score Social',
+        'governanceScore': 'Score Governamental',
+        'environmentScore': 'Score Ambiental',
+        'totalEsg': 'Score Total',
+    }
+
+    x = x.map(x_value_map)
+
+
+    for i in range(len(x)):
+        fig.add_traces(go.Bar(x = [x[i]], y = [y[i]], text=[y[i]], name=x[i]))
+
+
+    fig.update_layout(
+        title=f'<span>Indicadores de Sustentabilidade da Empresa</span>', 
+        autosize=False,
+        width=width,
+        height=height,
+        xaxis=dict(title='<span>Indicadores</span>'),
+        yaxis=dict(title='<span>Valores</span>'),
+        xaxis_rangeslider_visible=False,
+        margin=dict(l=10, r=10, t=35, b=0)
+    )
+
+    return fig
+

@@ -5,17 +5,28 @@ import pandas as pd
 import yfinance as yf
 
 def coletaDados(list_codigos = [], interval = '1mo', start = '2015-01-01', end='2022-01-01'):
+    df_info = pd.DataFrame()
     
     if not isinstance(list_codigos, list):
         aux = list_codigos
         list_codigos = [aux]
 
     if len(list_codigos) == 0:
-        return 'Erro: Insira um código em empresa listada.'
+        return 'Erro: Insira um código de uma empresa listada.'
 
+    list_columns_info = ['shortName', 'longName', 'sector', 'fullTimeEmployees', 'longBusinessSummary', 'city', 'phone', 'country', 'industry', 'financialCurrency',
+                    'recommendationKey', 'recommendationMean', 'currentPrice', 'earningsGrowth', 'currentRatio', 'returnOnAssets', 'numberOfAnalystOpinions',
+                    'targetMeanPrice', 'market', 'website', 'logo_url',
+                    ]
+    list_columns_news = ['title', 'publisher', 'link']
 
+    
     list_dfs = []
+    list_dfs_quartfinancials = []
+    list_dfs_sustainability = []
+    list_dfs_news = []
     try:
+        list_rows_info = []
         for codigo in list_codigos:
             ticket = yf.Ticker(codigo)
             aux = ticket.history(interval=interval, start=start, end=end)
@@ -28,13 +39,56 @@ def coletaDados(list_codigos = [], interval = '1mo', start = '2015-01-01', end='
             list_dfs.append(aux)
 
 
+            # Info
+            info = ticket.info
+            list_values_info = []
+            for column in list_columns_info:
+                list_values_info.append(info[column])
+
+            list_rows_info.append(list_values_info)
+
+        
+            # Quarterly Financials
+            quarterly_financials = ticket.quarterly_financials
+            aux = quarterly_financials.T[['Gross Profit', 'Net Income', 'Total Revenue']]
+
+            list_dfs_quartfinancials.append(aux)
+                    
+        
+        
+            # Sustainability
+            sustainability = ticket.sustainability
+            aux = sustainability.T[['socialScore', 'governanceScore', 'environmentScore', 'totalEsg']]
+
+            list_dfs_sustainability.append(aux)
 
 
-        return list_dfs
+            # News
+            news = ticket.news
+            list_rows_news = []
+            for i in range(len(news)):
+
+                list_values_news = []
+                for column in list_columns_news:
+                    list_values_news.append(news[i][column])
+
+                list_rows_news.append(list_values_news)
+            
+            aux = pd.DataFrame(list_rows_news, columns=list_columns_news)
+            list_dfs_news.append(aux)
+        
+        #Criando DataFrame de Info
+        df_info = pd.DataFrame(list_rows_info, columns=list_columns_info, index=list_codigos)
+
+
+
+
+        return df_info, list_dfs, list_dfs_quartfinancials, list_dfs_sustainability, list_dfs_news
 
     except Exception as e: 
         print(e)
         return 'Erro: Erro ao ler os dados'
+
 
 
 def expandirDataFrame(df):

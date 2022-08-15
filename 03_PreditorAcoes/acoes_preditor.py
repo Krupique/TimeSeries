@@ -15,8 +15,8 @@ import pandas as pd
 import numpy as np
 
 from include.coleta import coletaDados, agrupaDados, geraDatas
-from include.graphs import exibirGrafico, exibirCanddleStick, adicionarTrace
-from include.calculos import calculaRentabilidade, decomporSerie, calculaEstacionaridade, calculaMediaMovel, calculaDesvioPadrao
+from include.graphs import exibirGrafico, exibirCanddleStick, adicionarTrace, exibirGraficoSustentabilidade
+from include.calculos import calculaRentabilidade, decomporSerie, calculaEstacionaridade, calculaMediaMovel, calculaDesvioPadrao, currencyFormatting
 from include.modelo import Preditor
 
 
@@ -64,30 +64,30 @@ def main_page():
         if input_dt_ini < input_dt_fim and input_dt_ini < date.today():
 
             #Coletando os dados
-            list_df = coletaDados(list_selected, interval='1d', start=input_dt_ini.strftime("%Y-%m-%d"), end=input_dt_fim.strftime("%Y-%m-%d"))
+            df_info, list_dfs, list_dfs_quartfinancials, list_dfs_sustainability, list_dfs_news = coletaDados(list_selected, interval='1d', start=input_dt_ini.strftime("%Y-%m-%d"), end=input_dt_fim.strftime("%Y-%m-%d"))
 
             if option == 'Dia':
                 column_x = 'Date'
-                list_df_agrupados = list_df
+                list_df_agrupados = list_dfs
 
             elif option == 'Semana':
                 column_x = 'Week'
-                list_df_agrupados = agrupaDados(list_df, [column_x], tipo_agrupamento)
+                list_df_agrupados = agrupaDados(list_dfs, [column_x], tipo_agrupamento)
 
             elif option == 'Mês':
                 column_x = 'YearMonth'
-                list_df_agrupados = agrupaDados(list_df, [column_x], tipo_agrupamento)
+                list_df_agrupados = agrupaDados(list_dfs, [column_x], tipo_agrupamento)
             
             elif option == 'Ano':
                 column_x = 'Year'
-                list_df_agrupados = agrupaDados(list_df, [column_x], tipo_agrupamento)
+                list_df_agrupados = agrupaDados(list_dfs, [column_x], tipo_agrupamento)
 
 
 
             with tab1:
                 st.header('Visão Geral dos Dados')
 
-                if len(list_df) == 0:
+                if len(list_dfs) == 0:
                     st.write('Os dados não foram carregados')
                 else:
                     tabs_empresas = st.tabs(list_selected)
@@ -97,10 +97,77 @@ def main_page():
                         with tabs_empresas[i]:
 
                             tab01, tab02, tab03 = st.tabs(['Dados de Ações', 'Resumo da empresa', 'Notícias'])
+                            
+                            df_aux_info = df_info.loc[df_info.index == list_selected[i]]
+
                             with tab01:
 
+                                st.markdown('### Informações do Ativo')
+
+                                c1, c2, c3 = st.columns(3)
+
+                                financialCurrency = df_aux_info['financialCurrency'].values[0]
+                                currentPrice = df_aux_info['currentPrice'].values[0]
+                                earningsGrowth = df_aux_info['earningsGrowth'].values[0]
+                                recommendationKey = df_aux_info['recommendationKey'].values[0]
+                                recommendationMean = df_aux_info['recommendationMean'].values[0]
+                                numberOfAnalystOpinions = df_aux_info['numberOfAnalystOpinions'].values[0]
+                                targetMeanPrice = df_aux_info['targetMeanPrice'].values[0]
+                                market = df_aux_info['market'].values[0]
+
+
+                                c1.metric(label="Moeda Padrão", value=financialCurrency, delta=market)
+                                c2.metric(label="Valor Atual (Ganhos p/cresc)", value=currentPrice, delta=earningsGrowth)
+                                c3.metric(label="Avaliação de Recomendação", value=recommendationKey, delta=float(recommendationMean), delta_color="off")
+                                
+                                st.write("")
+
+                                c1, c2 = st.columns(2)
+                                
+                                c1.markdown(f'Recomendação de Especialistas: **{recommendationKey}**')
+                                c1.markdown(f'Média de Recomendação: **{recommendationMean}**')
+                                c1.markdown(f'Opinião de [**{numberOfAnalystOpinions}**] especialistas')
+                                
+                                c2.markdown(f'Valor atual do ativo: **{currentPrice}**')
+                                c2.markdown(f'Preço médio do Alvo: **{targetMeanPrice}**')
+                                c2.markdown(f'Ganhos por Crescimento: **{earningsGrowth}**')
+
+                                st.markdown("""---""")
+
+                                st.markdown("**Resultados dos últimos trimestres**")
+
+                                df_trimestre = list_dfs_quartfinancials[i]
+
+                                df_trimestre['Gross Profit'] = df_trimestre['Gross Profit'].apply(currencyFormatting)
+                                df_trimestre['Net Income'] = df_trimestre['Net Income'].apply(currencyFormatting)
+                                df_trimestre['Total Revenue'] = df_trimestre['Total Revenue'].apply(currencyFormatting)
+
+                                c1, c2, c3, c4 = st.columns(4)
+
+
+
+                                trimestres = [] 
+                                for data in df_trimestre.index:
+                                    trimestres.append(f'{data.year}-{data.month}')
+
+                                c1.markdown(f"<p style='text-align: center;'>{trimestres[0]}</p>", unsafe_allow_html=True)
+                                
+                                c2.markdown(f"<p style='text-align: center;'>{trimestres[1]}</p>", unsafe_allow_html=True)
+                                
+                                c3.markdown(f"<p style='text-align: center;'>{trimestres[2]}</p>", unsafe_allow_html=True)
+                                
+                                c4.markdown(f"<p style='text-align: center;'>{trimestres[3]}</p>", unsafe_allow_html=True)
+
+
+
+                                #currencyFormatting
+
+
+
+                                st.markdown("""---""")
+
                                 st.write(f"Exibindo Dados do Ticker: {list_selected[i]}")
-                                st.write(list_df_agrupados[i])
+                                st.write(list_df_agrupados[i][['Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Week', 'NameDayOfWeek']])
 
                                 figCandlestick = exibirCanddleStick(list_df_agrupados[i], column_x, list_selected[i], title='Gráfico Candlestick da ação', width=1000, height=500, xlabel='Período', ylabel='Valores')
                                 
@@ -116,10 +183,85 @@ def main_page():
                                 st.write(figCandlestick)
 
                             with tab02:
-                                st.write('Resumo da empresa')
+                                
+                                st.markdown('### Resumo da empresa')
+                                c1, c2 = st.columns(2)
+
+                                
+
+                                c1.markdown('**Informações Básicas**')
+
+                                shortName = df_aux_info['shortName'].values[0]
+                                c1.markdown(f'Nome abreviado: **{shortName}**')
+
+                                longName = df_aux_info['longName'].values[0]
+                                c1.markdown(f'Nome completo: **{longName}**')
+
+                                sector = df_aux_info['sector'].values[0]
+                                c1.markdown(f'Setor de atuação: **{sector}**')
+
+                                industry = df_aux_info['industry'].values[0]
+                                c1.markdown(f'Tipo de serviço: **{industry}**')
+
+                                employees = df_aux_info['fullTimeEmployees'].values[0]
+                                c1.markdown(f'Quantidade de colaboradores: **{employees}**')
+
+								
+                                ###########################################################
+                                c2.markdown('**Informações de Endereço e Contato**')
+                                
+                                city = df_aux_info['city'].values[0]
+                                c2.markdown(f'Tipo de serviço: **{industry}**')
+                                
+                                country = df_aux_info['country'].values[0]
+                                c2.markdown(f'Pais da sede: **{country}**')
+
+
+                                phone = df_aux_info['phone'].values[0]
+                                c2.markdown(f'Telefone: **{phone}**')
+
+                                website = df_aux_info['website'].values[0]
+                                c2.markdown(f'Website: **{website}**')
+
+                                logo_url = df_aux_info['logo_url'].values[0]
+                                c2.write('Logo da empresa')
+                                c2.image(logo_url)
+
+
+                                st.markdown("""---""")
+
+                                st.markdown('**Sobre a Empresa**')
+                                longText = df_aux_info['longBusinessSummary'].values[0]
+                                st.write(longText)
+
+                                st.markdown("""---""")
+
+                                df_sustainability = list_dfs_sustainability[i]
+                                mes = df_sustainability.columns.name
+
+                                st.markdown(f'**Avaliação de Sustentabilidade da organização no período {mes}**')
+
+                                x_values = df_sustainability.columns
+                                y_values = df_sustainability.values[0]
+
+                                c1, c2, c3, c4 = st.columns(4)
+
+                                c1.metric('Score Total', y_values[3])
+                                c2.metric('Score Social', y_values[0])
+                                c3.metric('Score Governamental', y_values[1])
+                                c4.metric('Score Ambiental', y_values[2])
+
+                                #fig = exibirGraficoSustentabilidade(x_values, y_values, 700, 300)
+                                #st.write(fig)
+
+
+
 
                             with tab03:
-                                st.write('Notícias')
+
+                                st.markdown('### Últimas Notícias relacionadas ao Ativo')
+
+
 
 
 
@@ -128,6 +270,8 @@ def main_page():
 
 
                     st.markdown("""---""")
+
+                    st.markdown('#### Comparação dos ativos')
 
                     figureTimeSerie = exibirGrafico(list_df_agrupados, list_selected, type='line', x=column_x, y='Close', title=f'Série Temporal agrupada por {column_x} [Valor de Fechamento da ação]', xlabel='Período', ylabel='Valor', width=700)
                     df_rentabilidade = calculaRentabilidade(list_df_agrupados, list_selected)
@@ -144,7 +288,7 @@ def main_page():
 
             with tab2:
                 st.header('Análise Estatística')
-                if len(list_df) == 0:
+                if len(list_dfs) == 0:
                     st.write('Os dados não foram carregados')
                 else:
                     optionDecompose = st.radio(
@@ -160,16 +304,16 @@ def main_page():
 
                             st.write(f"Exibindo Dados do Ticker: {list_selected[i]}")
 
-                            figureBarPlot = exibirGrafico([list_df[i]], type='box', list_tickers = list_selected, x='Year', y='Close', title='Boxplot por ano para análise interquartil', xlabel='Período', ylabel='Valor', width=300, height=400)
-                            figureHistogram = exibirGrafico([list_df[i]], type='histogram',list_tickers = list_selected , x='Close', y='Close', title='Histograma com valores de Fechamento', xlabel='Valores', ylabel='Quantidade', width=300, height=400)
+                            figureBarPlot = exibirGrafico([list_dfs[i]], type='box', list_tickers = list_selected, x='Year', y='Close', title='Boxplot por ano para análise interquartil', xlabel='Período', ylabel='Valor', width=300, height=400)
+                            figureHistogram = exibirGrafico([list_dfs[i]], type='histogram',list_tickers = list_selected , x='Close', y='Close', title='Histograma com valores de Fechamento', xlabel='Valores', ylabel='Quantidade', width=300, height=400)
                             
-                            df_adfuller = calculaEstacionaridade(list_df[i], 'Close')
+                            df_adfuller = calculaEstacionaridade(list_dfs[i], 'Close')
                             
                             if optionDecompose == 'Aditiva':
-                                list_df_decomposition = decomporSerie(list_df[i], 'aditive')
+                                list_df_decomposition = decomporSerie(list_dfs[i], 'aditive')
 
                             else: #Multiplicativa
-                                list_df_decomposition = decomporSerie(list_df[i], 'multiplicative')
+                                list_df_decomposition = decomporSerie(list_dfs[i], 'multiplicative')
 
                             
                             
@@ -208,7 +352,7 @@ def main_page():
 
             with tab3:
                 st.header('Análise Preditiva')
-                if len(list_df) == 0:
+                if len(list_dfs) == 0:
                     st.write('Os dados não foram carregados')
                 else:
                     c1, c2 = st.columns(2)

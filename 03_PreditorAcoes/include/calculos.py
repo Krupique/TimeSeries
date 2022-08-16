@@ -3,6 +3,7 @@ import pandas as pd
 from statsmodels.tsa.seasonal import seasonal_decompose
 # Imports análise e modelagem de séries temporais
 from statsmodels.tsa.stattools import adfuller
+from numpy import abs
 
 
 
@@ -80,14 +81,17 @@ def calculaDesvioPadrao(df, days = 30):
 
 
 def currencyFormatting(value):
+    neg = '-' if value < 0 else '' 
+    value = abs(value)
+
     if value / 1000000000 > 1:
-        return f'$ {str(round(value/1000000000, 2))}B'
-    if value / 1000000 > 1:
-        return f'$ {str(round(value/1000000, 2))}M'
+        return f'{neg}$ {str(round(value/1000000000, 2))}B'
+    elif value / 1000000 > 1:
+        return f'{neg}$ {str(round(value/1000000, 2))}M'
     elif value / 100000 > 1:
-        return f'$ {str(round(value/100000, 2))}KK'
+        return f'{neg}$ {str(round(value/100000, 2))}KK'
     elif value / 1000 > 1:
-        return f'$ {str(round(value/10000, 2))}k'
+        return f'{neg}$ {str(round(value/10000, 2))}k'
     else: 
-        return f'$ {str(round(value, 2))}'
+        return f'{neg}$ {str(round(value, 2))}'
 

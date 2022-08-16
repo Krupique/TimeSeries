@@ -42,45 +42,89 @@ def sidebar_features():
     st.sidebar.markdown("- [Linkedin](https://www.linkedin.com/in/henrique-krupck/)")
     st.sidebar.markdown("- [Github](https://github.com/krupique)")
 
+def validar_alteracoes(list_selected, input_dt_ini, input_dt_fim, option, tipo_agrupamento):
+    resultado = True
+
+    if 'validar_alteracoes' not in st.session_state:
+        st.session_state['validar_alteracoes'] = True
+
+    else:
+        if not (st.session_state['list_selected'] == list_selected and st.session_state['input_dt_ini'] == input_dt_ini and st.session_state['input_dt_fim'] == input_dt_fim and  st.session_state['option'] == option and st.session_state['tipo_agrupamento'] == tipo_agrupamento):
+            resultado = False
+
+    st.session_state['list_selected'] = list_selected
+    st.session_state['input_dt_ini'] = input_dt_ini
+    st.session_state['input_dt_fim'] = input_dt_fim
+    st.session_state['option'] = option
+    st.session_state['tipo_agrupamento'] = tipo_agrupamento
+
+    return resultado
+
+
 
 def main_page():
 
     list_selected = st.multiselect( 'Selecione a empresa', list_tickers)
-    c1, c2 = st.columns(2)
+    c1, c2, c3, c4 = st.columns(4)
 
     input_dt_ini = c1.date_input("Data Inicial")
     input_dt_fim = c2.date_input("Data Final")
+    option = c3.selectbox( 'Selecione o agrupamento por data ', ('Dia', 'Semana', 'Mês', 'Ano')) 
+    tipo_agrupamento = c4.selectbox( 'Selecione o método de agrupamento ', ('Somatório', 'Média', 'Mediana')) 
 
-    c1, c2 = st.columns(2)
-    option = c1.selectbox( 'Selecione o agrupamento por data ', ('Dia', 'Semana', 'Mês', 'Ano')) 
-    tipo_agrupamento = c2.selectbox( 'Selecione o método de agrupamento ', ('Somatório', 'Média', 'Mediana')) 
+
+    flag_coleta = False
+    if st.button('Coletar Dados'):
+        df_info, list_dfs, list_dfs_quartfinancials, list_dfs_sustainability, list_dfs_news = coletaDados(list_selected, interval='1d', start=input_dt_ini.strftime("%Y-%m-%d"), end=input_dt_fim.strftime("%Y-%m-%d"))
+        flag_coleta = True
+
+        #if 'flag' not in st.session_state:
+        st.session_state['flag'] = 'OK'
+
+        st.session_state['df_info'] = df_info
+        st.session_state['list_dfs'] = list_dfs
+        st.session_state['list_dfs_quartfinancials'] = list_dfs_quartfinancials
+        st.session_state['list_dfs_sustainability'] = list_dfs_sustainability
+        st.session_state['list_dfs_news'] = list_dfs_news
+    else:
+        if validar_alteracoes(list_selected, input_dt_ini, input_dt_fim, option, tipo_agrupamento):
+            if 'flag' in st.session_state:
+                flag_coleta = True
+                df_info = st.session_state['df_info']
+                list_dfs = st.session_state['list_dfs']
+                list_dfs_quartfinancials = st.session_state['list_dfs_quartfinancials']
+                list_dfs_sustainability = st.session_state['list_dfs_sustainability']
+                list_dfs_news = st.session_state['list_dfs_news']
+
+        else:
+            flag_coleta = False
+            
 
     tab1, tab2, tab3 = st.tabs(['Visão Geral dos Dados', 'Análise Estatística', 'Análise Preditiva'])
 
-    if len(list_selected) > 0:
-
-        
+    if len(list_selected) > 0 and flag_coleta:
 
         if input_dt_ini < input_dt_fim and input_dt_ini < date.today():
-
-            #Coletando os dados
-            df_info, list_dfs, list_dfs_quartfinancials, list_dfs_sustainability, list_dfs_news = coletaDados(list_selected, interval='1d', start=input_dt_ini.strftime("%Y-%m-%d"), end=input_dt_fim.strftime("%Y-%m-%d"))
 
             if option == 'Dia':
                 column_x = 'Date'
                 list_df_agrupados = list_dfs
+                display_columns = ['Data', 'Open', 'High', 'Low', 'Close', 'Volume', 'Week', 'NameDayOfWeek']
 
             elif option == 'Semana':
                 column_x = 'Week'
                 list_df_agrupados = agrupaDados(list_dfs, [column_x], tipo_agrupamento)
+                display_columns = ['Week', 'Open', 'High', 'Low', 'Close', 'Volume']
 
             elif option == 'Mês':
                 column_x = 'YearMonth'
                 list_df_agrupados = agrupaDados(list_dfs, [column_x], tipo_agrupamento)
+                display_columns = ['Year Month', 'Open', 'High', 'Low', 'Close', 'Volume']
             
             elif option == 'Ano':
                 column_x = 'Year'
                 list_df_agrupados = agrupaDados(list_dfs, [column_x], tipo_agrupamento)
+                display_columns = ['Year', 'Open', 'High', 'Low', 'Close', 'Volume']
 
 
 
@@ -138,9 +182,9 @@ def main_page():
 
                                 df_trimestre = list_dfs_quartfinancials[i]
 
-                                df_trimestre['Gross Profit'] = df_trimestre['Gross Profit'].apply(currencyFormatting)
-                                df_trimestre['Net Income'] = df_trimestre['Net Income'].apply(currencyFormatting)
-                                df_trimestre['Total Revenue'] = df_trimestre['Total Revenue'].apply(currencyFormatting)
+                                df_trimestre['Gross Profit Transformed'] = df_trimestre['Gross Profit'].apply(currencyFormatting)
+                                df_trimestre['Net Income Transformed'] = df_trimestre['Net Income'].apply(currencyFormatting)
+                                df_trimestre['Total Revenue Transformed'] = df_trimestre['Total Revenue'].apply(currencyFormatting)
 
                                 c1, c2, c3, c4 = st.columns(4)
 
@@ -150,24 +194,51 @@ def main_page():
                                 for data in df_trimestre.index:
                                     trimestres.append(f'{data.year}-{data.month}')
 
-                                c1.markdown(f"<p style='text-align: center;'>{trimestres[0]}</p>", unsafe_allow_html=True)
-                                
-                                c2.markdown(f"<p style='text-align: center;'>{trimestres[1]}</p>", unsafe_allow_html=True)
-                                
-                                c3.markdown(f"<p style='text-align: center;'>{trimestres[2]}</p>", unsafe_allow_html=True)
-                                
-                                c4.markdown(f"<p style='text-align: center;'>{trimestres[3]}</p>", unsafe_allow_html=True)
+                                lucro_bruto = df_trimestre.iloc[0]['Gross Profit Transformed']
+                                resultado_liquido = df_trimestre.iloc[0]['Net Income Transformed']
+                                rendimento_total = df_trimestre.iloc[0]['Total Revenue Transformed']
+                                #c1.markdown(f"<p style='text-align: center;'>{trimestres[0]}</p>", unsafe_allow_html=True)
+                                c1.markdown(f'{trimestres[0]}')
+                                c1.markdown(f'Lucro Bruto: **{lucro_bruto}**')
+                                c1.markdown(f'Resultado Líquido: **{resultado_liquido}**')
+                                c1.markdown(f'Rendimento Total: **{rendimento_total}**')
 
 
+                                lucro_bruto = df_trimestre.iloc[1]['Gross Profit Transformed']
+                                resultado_liquido = df_trimestre.iloc[1]['Net Income Transformed']
+                                rendimento_total = df_trimestre.iloc[1]['Total Revenue Transformed']
+                                #c2.markdown(f"<p style='text-align: center;'>{trimestres[1]}</p>", unsafe_allow_html=True)
+                                c2.markdown(f'{trimestres[1]}')
+                                c2.markdown(f'Lucro Bruto: **{lucro_bruto}**')
+                                c2.markdown(f'Resultado Líquido: **{resultado_liquido}**')
+                                c2.markdown(f'Rendimento Total: **{rendimento_total}**')
+                                
 
-                                #currencyFormatting
+                                lucro_bruto = df_trimestre.iloc[2]['Gross Profit Transformed']
+                                resultado_liquido = df_trimestre.iloc[2]['Net Income Transformed']
+                                rendimento_total = df_trimestre.iloc[2]['Total Revenue Transformed']
+                                #c3.markdown(f"<p style='text-align: center;'>{trimestres[2]}</p>", unsafe_allow_html=True)
+                                c3.markdown(f'{trimestres[2]}')
+                                c3.markdown(f'Lucro Bruto: **{lucro_bruto}**')
+                                c3.markdown(f'Resultado Líquido: **{resultado_liquido}**')
+                                c3.markdown(f'Rendimento Total: **{rendimento_total}**')
+                                
+
+                                lucro_bruto = df_trimestre.iloc[3]['Gross Profit Transformed']
+                                resultado_liquido = df_trimestre.iloc[3]['Net Income Transformed']
+                                rendimento_total = df_trimestre.iloc[3]['Total Revenue Transformed']
+                                #c4.markdown(f"<p style='text-align: center;'>{trimestres[3]}</p>", unsafe_allow_html=True)
+                                c4.markdown(f'{trimestres[3]}')
+                                c4.markdown(f'Lucro Bruto: **{lucro_bruto}**')
+                                c4.markdown(f'Resultado Líquido: **{resultado_liquido}**')
+                                c4.markdown(f'Rendimento Total: **{rendimento_total}**')
 
 
 
                                 st.markdown("""---""")
 
                                 st.write(f"Exibindo Dados do Ticker: {list_selected[i]}")
-                                st.write(list_df_agrupados[i][['Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Week', 'NameDayOfWeek']])
+                                st.write(list_df_agrupados[i][display_columns])
 
                                 figCandlestick = exibirCanddleStick(list_df_agrupados[i], column_x, list_selected[i], title='Gráfico Candlestick da ação', width=1000, height=500, xlabel='Período', ylabel='Valores')
                                 
@@ -261,11 +332,11 @@ def main_page():
 
                                 st.markdown('### Últimas Notícias relacionadas ao Ativo')
 
+                                df_news = list_dfs_news[i]
 
-
-
-
-
+                                for row in df_news.iterrows():
+                                    st.markdown(f'<a target="_blank" href="{row[1].link}">{row[1].title}</a>', unsafe_allow_html=True)
+                                    st.caption(f'{row[1].publisher} {row[1].date}')
 
 
 
@@ -359,6 +430,7 @@ def main_page():
                     period = c1.slider('Escolha a quantidade de períodos para a previsão.', 0, 120, 7)
                     periodiocity = c2.number_input('Nível de Periodicidade. Valor recomendado: 15 períodos', value = 15, min_value = 5, max_value = 35)
                     
+
                     c1.write('NOTA: Quanto mais distante o período que se quer prever, maior é o grau de incerteza.')
                     c2.write('NOTA: Valores baixos são mais velozes em performance, valores altos são mais precisos, porém mais custosos.')
                     
@@ -386,11 +458,11 @@ def main_page():
                                     df_previsoes = geraDatas(previsoes, dataInicial, column_x)
 
                                     figureTimeSerie = exibirGrafico([list_df_agrupados[i]], ['Valores Reais'], type='line', x=column_x, y='Close', title=f'Série Temporal agrupada por {column_x} [Valor de Fechamento da ação e Previsões realizadas]', xlabel='Período', ylabel='Valor', width=700)
-                                    figureTimeSerie = adicionarTrace(fig = figureTimeSerie, df = df_previsoes, x = column_x, y = 'Previsões', name='Previsões', color='#FF0')
+                                    figureTimeSerie = adicionarTrace(fig = figureTimeSerie, df = df_previsoes, x = column_x, y = 'Valores Previstos', name='Valores Previstos', color='#FF0')
 
                                     c1, c2 = st.columns([0.3, 0.7])
                                     c1.write('Tabela com valores previstos pelo modelo')
-                                    c1.write(df_previsoes)
+                                    c1.write(df_previsoes[['Data', 'Valores Previstos']])
                                     c2.write(figureTimeSerie)
 
  
@@ -403,7 +475,6 @@ def main_page():
 
 
 ###############################################################################################################
-
 if __name__ == '__main__':
 
     # transformation

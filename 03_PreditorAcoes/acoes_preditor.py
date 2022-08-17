@@ -31,16 +31,34 @@ for row in ref_file:
     list_tickers.append(row)
 
 ################################################# Funções e métodos Streamlit ##################################################
-st.set_page_config(layout='wide')
+#st.set_page_config(layout='wide')
+st.set_page_config(
+    page_title="Preditor de Ações",
+    page_icon="🧊",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': 'https://github.com/Krupique/TimeSeries/tree/main/03_PreditorAcoes',
+        'Report a bug': "https://www.linkedin.com/in/henrique-krupck/",
+        'About': "This project is maintained by Henrique Krupck. All project documentation, details and description of each technique used are in the [official repository on github](https://github.com/Krupique/TimeSeries/tree/main/03_PreditorAcoes)."
+    }
+)
 
 def sidebar_features():
-    image = Image.open('assets/img.jpeg')
+
+    st.sidebar.markdown("<h1 style='text-align: center; color: black;'>Stock Analytics</h1>", unsafe_allow_html=True)
+
+    image = Image.open('assets/logo2.jpg')
     st.sidebar.image(image, use_column_width=True)
-    st.sidebar.header('Realizado por : Henrique Krupck')
+    
+    # Sobre
+    st.sidebar.subheader("Sobre")
+    st.sidebar.markdown('<div style="text-align: justify; padding:5px; color:#1e6777; border-radius:3px; background-color:#dbe6f4; border: 1px solid #c8dcf3;">Este projeto foi realizado por Henrique Krupck. Toda a documentação do projeto, detalhes e descrição de cada técnica utilizada estão no <a target="_blank" href="https://github.com/Krupique/TimeSeries/tree/main/03_PreditorAcoes">repositório oficial no github</a>.</div>', unsafe_allow_html=True)
+    
     # Contatos
-    st.sidebar.markdown("Contatos :")
-    st.sidebar.markdown("- [Linkedin](https://www.linkedin.com/in/henrique-krupck/)")
-    st.sidebar.markdown("- [Github](https://github.com/krupique)")
+    st.sidebar.subheader("Contatos")
+    st.sidebar.markdown('<div style="text-align: justify; padding:5px; color:#1e6777; border-radius:3px; background-color:#dbe6f4; border: 1px solid #c8dcf3;">Você pode me encontrar em:<ul><li><a target="_blank" href="https://www.linkedin.com/in/henrique-krupck/">Linkedin</a></li><li><a target="_blank" href="https://github.com/krupique">Github</a></li><li><a target="_blank" href="mailto:krupck@outlook.com">Email</a></li></ul></div>', unsafe_allow_html=True)
+
 
 def validar_alteracoes(list_selected, input_dt_ini, input_dt_fim, option, tipo_agrupamento):
     resultado = True
@@ -49,14 +67,15 @@ def validar_alteracoes(list_selected, input_dt_ini, input_dt_fim, option, tipo_a
         st.session_state['validar_alteracoes'] = True
 
     else:
-        if not (st.session_state['list_selected'] == list_selected and st.session_state['input_dt_ini'] == input_dt_ini and st.session_state['input_dt_fim'] == input_dt_fim and  st.session_state['option'] == option and st.session_state['tipo_agrupamento'] == tipo_agrupamento):
+        #if not (st.session_state['list_selected'] == list_selected and st.session_state['input_dt_ini'] == input_dt_ini and st.session_state['input_dt_fim'] == input_dt_fim and  st.session_state['option'] == option and st.session_state['tipo_agrupamento'] == tipo_agrupamento):
+        if not (st.session_state['list_selected'] == list_selected and st.session_state['input_dt_ini'] == input_dt_ini and st.session_state['input_dt_fim'] == input_dt_fim):
             resultado = False
 
     st.session_state['list_selected'] = list_selected
     st.session_state['input_dt_ini'] = input_dt_ini
     st.session_state['input_dt_fim'] = input_dt_fim
-    st.session_state['option'] = option
-    st.session_state['tipo_agrupamento'] = tipo_agrupamento
+    #st.session_state['option'] = option
+    #st.session_state['tipo_agrupamento'] = tipo_agrupamento
 
     return resultado
 
@@ -242,14 +261,30 @@ def main_page():
 
                                 figCandlestick = exibirCanddleStick(list_df_agrupados[i], column_x, list_selected[i], title='Gráfico Candlestick da ação', width=1000, height=500, xlabel='Período', ylabel='Valores')
                                 
-                                df_mediamovel = calculaMediaMovel(list_df_agrupados[i], days = 7)
-                                figCandlestick = adicionarTrace(figCandlestick, df_mediamovel, x = column_x, y = 'MediaMovel', name= 'Média móvel 7 dias', color = '#FF0')
+                                lista_dias = [7, 15, 30]
+                                texto = 'Dias'
+                                if column_x == 'Week':
+                                    lista_dias = [5, 10, 20]
+                                    texto = 'Semanas'
                                 
-                                df_mediamovel = calculaMediaMovel(list_df_agrupados[i], days = 15)
-                                figCandlestick = adicionarTrace(figCandlestick, df_mediamovel, x = column_x, y = 'MediaMovel', name= 'Média móvel 15 dias', color = '#323ca8')
+                                elif column_x == 'YearMonth':
+                                    lista_dias = [3, 6, 12]
+                                    texto = 'Meses'
 
-                                df_mediamovel = calculaMediaMovel(list_df_agrupados[i], days = 30)
-                                figCandlestick = adicionarTrace(figCandlestick, df_mediamovel, x = column_x, y = 'MediaMovel', name= 'Média móvel 30 dias', color = '#a8329b')
+                                elif column_x == 'Year':
+                                    lista_dias = [2, 3, 5]
+                                    texto = 'Anos'
+
+
+
+                                df_mediamovel = calculaMediaMovel(list_df_agrupados[i], days = lista_dias[0])
+                                figCandlestick = adicionarTrace(figCandlestick, df_mediamovel, x = column_x, y = 'MediaMovel', name= f'Média móvel {lista_dias[0]} {texto}', color = '#FF0')
+                                
+                                df_mediamovel = calculaMediaMovel(list_df_agrupados[i], days = lista_dias[1])
+                                figCandlestick = adicionarTrace(figCandlestick, df_mediamovel, x = column_x, y = 'MediaMovel', name= f'Média móvel {lista_dias[1]} {texto}', color = '#323ca8')
+
+                                df_mediamovel = calculaMediaMovel(list_df_agrupados[i], days = lista_dias[2])
+                                figCandlestick = adicionarTrace(figCandlestick, df_mediamovel, x = column_x, y = 'MediaMovel', name= f'Média móvel {lista_dias[2]} {texto}', color = '#a8329b')
                                 
                                 st.write(figCandlestick)
 
@@ -337,6 +372,7 @@ def main_page():
                                 for row in df_news.iterrows():
                                     st.markdown(f'<a target="_blank" href="{row[1].link}">{row[1].title}</a>', unsafe_allow_html=True)
                                     st.caption(f'{row[1].publisher} {row[1].date}')
+                                    st.write('\n')
 
 
 
@@ -373,53 +409,59 @@ def main_page():
                     for i in range(len(tabs_empresas)):
                         with tabs_empresas[i]:
 
-                            st.write(f"Exibindo Dados do Ticker: {list_selected[i]}")
+                            if len(list_df_agrupados[i]) > 3:
 
-                            figureBarPlot = exibirGrafico([list_dfs[i]], type='box', list_tickers = list_selected, x='Year', y='Close', title='Boxplot por ano para análise interquartil', xlabel='Período', ylabel='Valor', width=300, height=400)
-                            figureHistogram = exibirGrafico([list_dfs[i]], type='histogram',list_tickers = list_selected , x='Close', y='Close', title='Histograma com valores de Fechamento', xlabel='Valores', ylabel='Quantidade', width=300, height=400)
-                            
-                            df_adfuller = calculaEstacionaridade(list_dfs[i], 'Close')
-                            
-                            if optionDecompose == 'Aditiva':
-                                list_df_decomposition = decomporSerie(list_dfs[i], 'aditive')
+                                st.write(f"Exibindo Dados do Ticker: {list_selected[i]}")
 
-                            else: #Multiplicativa
-                                list_df_decomposition = decomporSerie(list_dfs[i], 'multiplicative')
+                                figureBarPlot = exibirGrafico([list_dfs[i]], type='box', list_tickers = list_selected, x='Year', y='Close', title='Boxplot por ano para análise interquartil', xlabel='Período', ylabel='Valor', width=300, height=400)
+                                figureHistogram = exibirGrafico([list_df_agrupados[i]], type='histogram',list_tickers = list_selected , x='Close', y='Close', title='Histograma com valores de Fechamento', xlabel='Valores', ylabel='Quantidade', width=300, height=400)
+                                
+                                df_adfuller = calculaEstacionaridade(list_df_agrupados[i], 'Close')
+                                
 
-                            
-                            
+                                c1, c2, c3 = st.columns(3)
 
-                            c1, c2, c3 = st.columns(3)
+                                c1.write('Teste Dickey-Fuller aumentado')
+                                c1.write(df_adfuller)
 
-                            c1.write('Teste Dickey-Fuller aumentado')
-                            c1.write(df_adfuller)
+                                valor_p = df_adfuller.loc[df_adfuller.index == 'Valor-p', 'Resultados'].values[0]
+                                if valor_p > 0.05:
+                                    c1.write('O valor-p é maior que 0.05 e, portanto, essa série provavelmente não é estacionária.')
+                                else: 
+                                    c1.write('O valor-p é maior que 0.05 e, portanto, essa série provavelmente é estacionária.')
 
-                            valor_p = df_adfuller.loc[df_adfuller.index == 'Valor-p', 'Resultados'].values[0]
-                            if valor_p > 0.05:
-                                c1.write('O valor-p é maior que 0.05 e, portanto, essa série provavelmente não é estacionária.')
-                            else: 
-                                c1.write('O valor-p é maior que 0.05 e, portanto, essa série provavelmente é estacionária.')
+                                c2.write(figureBarPlot)
+                                c3.write(figureHistogram)
 
-                            c2.write(figureBarPlot)
-                            c3.write(figureHistogram)
+                                st.markdown("""---""")
 
-                            st.markdown("""---""")
+                                if len(list_df_agrupados[i]) > 100:
+                                    if optionDecompose == 'Aditiva':
+                                        list_df_decomposition = decomporSerie(list_df_agrupados[i], 'aditive', column_x)
 
-                            figureDecompose1 = exibirGrafico([list_df_decomposition[0]], list_df_decomposition[0].name , type='line', x='Date', y='Value', title=f'Elemento {list_df_decomposition[0].name} da série decomposta', xlabel='Período', ylabel='Valor', height=300)
-                            figureDecompose2 = exibirGrafico([list_df_decomposition[1]], list_df_decomposition[1].name , type='line', x='Date', y='Value', title=f'Elemento {list_df_decomposition[1].name} da série decomposta', xlabel='Período', ylabel='Valor', height=300)
-                            figureDecompose3 = exibirGrafico([list_df_decomposition[2]], list_df_decomposition[2].name , type='line', x='Date', y='Value', title=f'Elemento {list_df_decomposition[2].name} da série decomposta', xlabel='Período', ylabel='Valor', height=300)
+                                    else: #Multiplicativa
+                                        list_df_decomposition = decomporSerie(list_df_agrupados[i], 'multiplicative', column_x)
 
-                            figureTimeSerie = exibirGrafico([list_df_agrupados[i]], list_selected, type='line', x=column_x, y='Close', title=f'Série Temporal agrupada por {column_x} [Valor de Fechamento da ação e Desvio Padrão]', xlabel='Período', ylabel='Valor')
-                            df_desvio = calculaDesvioPadrao(list_df_agrupados[i], days=7)
-                            figureTimeSerie = adicionarTrace(figureTimeSerie, df_desvio, x = column_x, y='DesvioPadrao', name='Desvio Padrão', color='#FF0')
+                                    figureDecompose1 = exibirGrafico([list_df_decomposition[0]], list_df_decomposition[0].name , type='line', x=column_x, y='Value', title=f'Elemento {list_df_decomposition[0].name} da série decomposta', xlabel='Período', ylabel='Valor', height=300)
+                                    figureDecompose2 = exibirGrafico([list_df_decomposition[1]], list_df_decomposition[1].name , type='line', x=column_x, y='Value', title=f'Elemento {list_df_decomposition[1].name} da série decomposta', xlabel='Período', ylabel='Valor', height=300)
+                                    figureDecompose3 = exibirGrafico([list_df_decomposition[2]], list_df_decomposition[2].name , type='line', x=column_x, y='Value', title=f'Elemento {list_df_decomposition[2].name} da série decomposta', xlabel='Período', ylabel='Valor', height=300)
+
+                                    st.write(figureDecompose1)
+                                    st.write(figureDecompose2)
+                                    st.write(figureDecompose3)
+                                else:
+                                    st.write('Para decompor a Série é necessário um valor mínimo de 100 observações.')
 
 
-                            st.write(figureDecompose1)
-                            st.write(figureDecompose2)
-                            st.write(figureDecompose3)
+                                figureTimeSerie = exibirGrafico([list_df_agrupados[i]], list_selected, type='line', x=column_x, y='Close', title=f'Série Temporal agrupada por {column_x} [Valor de Fechamento da ação e Desvio Padrão]', xlabel='Período', ylabel='Valor')
+                                df_desvio = calculaDesvioPadrao(list_df_agrupados[i], days=7)
+                                figureTimeSerie = adicionarTrace(figureTimeSerie, df_desvio, x = column_x, y='DesvioPadrao', name='Desvio Padrão', color='#FF0')
 
-                            st.markdown("""---""")
-                            st.write(figureTimeSerie)
+                                st.markdown("""---""")
+                                st.write(figureTimeSerie)
+
+                            else:
+                                st.write('É necessário uma quantidade de períodos maior do que três [3] para verificar as medidas estatísticas.')
 
             with tab3:
                 st.header('Análise Preditiva')

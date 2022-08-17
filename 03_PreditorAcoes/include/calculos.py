@@ -22,24 +22,24 @@ def calculaRentabilidade(list_dfs, list_tickers):
 
     return df_rentabilidade
 
-def decomporSerie(df, type):
+def decomporSerie(df, type, column):
     decomposicao = seasonal_decompose(df[['Close']], period=50, model = type, extrapolate_trend = 'freq')
 
 
     dfTrend = pd.DataFrame(decomposicao.trend).reset_index()
     dfTrend.name = 'Tendência'
-    dfTrend.columns = ['Date', 'Value']
-    dfTrend['Date'] = df['Date']
+    dfTrend.columns = [column, 'Value']
+    dfTrend[column] = df[column]
 
     dfSazonal = pd.DataFrame(decomposicao.seasonal).reset_index()
     dfSazonal.name = 'Sazonalidade'
-    dfSazonal.columns = ['Date', 'Value']
-    dfSazonal['Date'] = df['Date']
+    dfSazonal.columns = [column, 'Value']
+    dfSazonal[column] = df[column]
     
     dfResid = pd.DataFrame(decomposicao.resid).reset_index()
     dfResid.name = 'Resíduos'
-    dfResid.columns = ['Date', 'Value']
-    dfSazonal['Date'] = df['Date']
+    dfResid.columns = [column, 'Value']
+    dfSazonal[column] = df[column]
 
     list_df_decomposition = [dfTrend, dfSazonal, dfResid]
 

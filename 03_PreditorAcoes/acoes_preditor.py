@@ -30,6 +30,8 @@ for row in ref_file:
     row = row.upper().replace('\n', '')
     list_tickers.append(row)
 
+ref_file.close() 
+
 ################################################# Funções e métodos Streamlit ##################################################
 #st.set_page_config(layout='wide')
 st.set_page_config(
@@ -43,6 +45,16 @@ st.set_page_config(
         'About': "This project is maintained by Henrique Krupck. All project documentation, details and description of each technique used are in the [official repository on github](https://github.com/Krupique/TimeSeries/tree/main/03_PreditorAcoes)."
     }
 )
+
+def add_ticker_cache(own_ticker):
+    if 'list_own_tickers' not in st.session_state:
+        st.session_state['list_own_tickers'] = [own_ticker]
+
+    else:
+        st.session_state['list_own_tickers'].append(own_ticker)
+
+    list_tickers.extend(st.session_state['list_own_tickers'])
+
 
 def sidebar_features():
 
@@ -58,6 +70,7 @@ def sidebar_features():
     # Contatos
     st.sidebar.subheader("Contatos")
     st.sidebar.markdown('<div style="text-align: justify; padding:5px; color:#1e6777; border-radius:3px; background-color:#dbe6f4; border: 1px solid #c8dcf3;">Você pode me encontrar em:<ul><li><a target="_blank" href="https://www.linkedin.com/in/henrique-krupck/">Linkedin</a></li><li><a target="_blank" href="https://github.com/krupique">Github</a></li><li><a target="_blank" href="mailto:krupck@outlook.com">Email</a></li></ul></div>', unsafe_allow_html=True)
+
 
 
 def validar_alteracoes(list_selected, input_dt_ini, input_dt_fim, option, tipo_agrupamento):
@@ -166,100 +179,89 @@ def main_page():
                             with tab01:
 
                                 st.markdown('### Informações do Ativo')
-
-                                c1, c2, c3 = st.columns(3)
-
-                                financialCurrency = df_aux_info['financialCurrency'].values[0]
-                                currentPrice = df_aux_info['currentPrice'].values[0]
-                                earningsGrowth = df_aux_info['earningsGrowth'].values[0]
-                                recommendationKey = df_aux_info['recommendationKey'].values[0]
-                                recommendationMean = df_aux_info['recommendationMean'].values[0]
-                                numberOfAnalystOpinions = df_aux_info['numberOfAnalystOpinions'].values[0]
-                                targetMeanPrice = df_aux_info['targetMeanPrice'].values[0]
-                                market = df_aux_info['market'].values[0]
-
-
-                                c1.metric(label="Moeda Padrão", value=financialCurrency, delta=market)
-                                c2.metric(label="Valor Atual (Ganhos p/cresc)", value=currentPrice, delta=earningsGrowth)
-                                c3.metric(label="Avaliação de Recomendação", value=recommendationKey, delta=float(recommendationMean), delta_color="off")
                                 
-                                st.write("")
+                                if len(df_aux_info) == 0:
+                                    st.markdown("""**Não foi possível as informações sobre os detalhes da empresa.**""")
+                                else:
+                                    financialCurrency = df_aux_info['financialCurrency'].values[0]
+                                    currentPrice = df_aux_info['currentPrice'].values[0]
+                                    earningsGrowth = df_aux_info['earningsGrowth'].values[0]
+                                    recommendationKey = df_aux_info['recommendationKey'].values[0]
+                                    recommendationMean = df_aux_info['recommendationMean'].values[0]
+                                    numberOfAnalystOpinions = df_aux_info['numberOfAnalystOpinions'].values[0]
+                                    targetMeanPrice = df_aux_info['targetMeanPrice'].values[0]
+                                    market = df_aux_info['market'].values[0]
 
-                                c1, c2 = st.columns(2)
-                                
-                                c1.markdown(f'Recomendação de Especialistas: **{recommendationKey}**')
-                                c1.markdown(f'Média de Recomendação: **{recommendationMean}**')
-                                c1.markdown(f'Opinião de [**{numberOfAnalystOpinions}**] especialistas')
-                                
-                                c2.markdown(f'Valor atual do ativo: **{currentPrice}**')
-                                c2.markdown(f'Preço médio do Alvo: **{targetMeanPrice}**')
-                                c2.markdown(f'Ganhos por Crescimento: **{earningsGrowth}**')
+                                    c1, c2, c3 = st.columns(3)
+                                    c1.metric(label="Moeda Padrão", value=financialCurrency, delta=market)
+                                    c2.metric(label="Valor Atual (Ganhos p/cresc)", value=currentPrice, delta=earningsGrowth)
+                                    c3.metric(label="Avaliação de Recomendação", value=recommendationKey, delta=float(recommendationMean), delta_color="off")
+                                    
+                                    st.write("")
+
+                                    c1, c2 = st.columns(2)
+                                    c1.markdown(f'Recomendação de Especialistas: **{recommendationKey}**')
+                                    c1.markdown(f'Média de Recomendação: **{recommendationMean}**')
+                                    c1.markdown(f'Opinião de [**{numberOfAnalystOpinions}**] especialistas')
+                                    c2.markdown(f'Valor atual do ativo: **{currentPrice}**')
+                                    c2.markdown(f'Preço médio do Alvo: **{targetMeanPrice}**')
+                                    c2.markdown(f'Ganhos por Crescimento: **{earningsGrowth}**')
 
                                 st.markdown("""---""")
-
                                 st.markdown("**Resultados dos últimos trimestres**")
-
+                                
                                 df_trimestre = list_dfs_quartfinancials[i]
+                                if len(df_trimestre) == 0:
+                                    st.markdown("""**Não foi possível obter as informações sobre os detalhes da empresa.**""")
+                                else:
+                                    df_trimestre['Gross Profit Transformed'] = df_trimestre['Gross Profit'].apply(currencyFormatting)
+                                    df_trimestre['Net Income Transformed'] = df_trimestre['Net Income'].apply(currencyFormatting)
+                                    df_trimestre['Total Revenue Transformed'] = df_trimestre['Total Revenue'].apply(currencyFormatting)
 
-                                df_trimestre['Gross Profit Transformed'] = df_trimestre['Gross Profit'].apply(currencyFormatting)
-                                df_trimestre['Net Income Transformed'] = df_trimestre['Net Income'].apply(currencyFormatting)
-                                df_trimestre['Total Revenue Transformed'] = df_trimestre['Total Revenue'].apply(currencyFormatting)
+                                    trimestres = [] 
+                                    for data in df_trimestre.index:
+                                        trimestres.append(f'{data.year}-{data.month}')
 
-                                c1, c2, c3, c4 = st.columns(4)
+                                    c1, c2, c3, c4 = st.columns(4)
 
-
-
-                                trimestres = [] 
-                                for data in df_trimestre.index:
-                                    trimestres.append(f'{data.year}-{data.month}')
-
-                                lucro_bruto = df_trimestre.iloc[0]['Gross Profit Transformed']
-                                resultado_liquido = df_trimestre.iloc[0]['Net Income Transformed']
-                                rendimento_total = df_trimestre.iloc[0]['Total Revenue Transformed']
-                                #c1.markdown(f"<p style='text-align: center;'>{trimestres[0]}</p>", unsafe_allow_html=True)
-                                c1.markdown(f'{trimestres[0]}')
-                                c1.markdown(f'Lucro Bruto: **{lucro_bruto}**')
-                                c1.markdown(f'Resultado Líquido: **{resultado_liquido}**')
-                                c1.markdown(f'Rendimento Total: **{rendimento_total}**')
-
-
-                                lucro_bruto = df_trimestre.iloc[1]['Gross Profit Transformed']
-                                resultado_liquido = df_trimestre.iloc[1]['Net Income Transformed']
-                                rendimento_total = df_trimestre.iloc[1]['Total Revenue Transformed']
-                                #c2.markdown(f"<p style='text-align: center;'>{trimestres[1]}</p>", unsafe_allow_html=True)
-                                c2.markdown(f'{trimestres[1]}')
-                                c2.markdown(f'Lucro Bruto: **{lucro_bruto}**')
-                                c2.markdown(f'Resultado Líquido: **{resultado_liquido}**')
-                                c2.markdown(f'Rendimento Total: **{rendimento_total}**')
-                                
-
-                                lucro_bruto = df_trimestre.iloc[2]['Gross Profit Transformed']
-                                resultado_liquido = df_trimestre.iloc[2]['Net Income Transformed']
-                                rendimento_total = df_trimestre.iloc[2]['Total Revenue Transformed']
-                                #c3.markdown(f"<p style='text-align: center;'>{trimestres[2]}</p>", unsafe_allow_html=True)
-                                c3.markdown(f'{trimestres[2]}')
-                                c3.markdown(f'Lucro Bruto: **{lucro_bruto}**')
-                                c3.markdown(f'Resultado Líquido: **{resultado_liquido}**')
-                                c3.markdown(f'Rendimento Total: **{rendimento_total}**')
-                                
-
-                                lucro_bruto = df_trimestre.iloc[3]['Gross Profit Transformed']
-                                resultado_liquido = df_trimestre.iloc[3]['Net Income Transformed']
-                                rendimento_total = df_trimestre.iloc[3]['Total Revenue Transformed']
-                                #c4.markdown(f"<p style='text-align: center;'>{trimestres[3]}</p>", unsafe_allow_html=True)
-                                c4.markdown(f'{trimestres[3]}')
-                                c4.markdown(f'Lucro Bruto: **{lucro_bruto}**')
-                                c4.markdown(f'Resultado Líquido: **{resultado_liquido}**')
-                                c4.markdown(f'Rendimento Total: **{rendimento_total}**')
+                                    lucro_bruto = df_trimestre.iloc[0]['Gross Profit Transformed']
+                                    resultado_liquido = df_trimestre.iloc[0]['Net Income Transformed']
+                                    rendimento_total = df_trimestre.iloc[0]['Total Revenue Transformed']
+                                    c1.markdown(f'{trimestres[0]}')
+                                    c1.markdown(f'Lucro Bruto: **{lucro_bruto}**')
+                                    c1.markdown(f'Resultado Líquido: **{resultado_liquido}**')
+                                    c1.markdown(f'Rendimento Total: **{rendimento_total}**')
 
 
+                                    lucro_bruto = df_trimestre.iloc[1]['Gross Profit Transformed']
+                                    resultado_liquido = df_trimestre.iloc[1]['Net Income Transformed']
+                                    rendimento_total = df_trimestre.iloc[1]['Total Revenue Transformed']
+                                    c2.markdown(f'{trimestres[1]}')
+                                    c2.markdown(f'Lucro Bruto: **{lucro_bruto}**')
+                                    c2.markdown(f'Resultado Líquido: **{resultado_liquido}**')
+                                    c2.markdown(f'Rendimento Total: **{rendimento_total}**')
+                                    
+
+                                    lucro_bruto = df_trimestre.iloc[2]['Gross Profit Transformed']
+                                    resultado_liquido = df_trimestre.iloc[2]['Net Income Transformed']
+                                    rendimento_total = df_trimestre.iloc[2]['Total Revenue Transformed']
+                                    c3.markdown(f'{trimestres[2]}')
+                                    c3.markdown(f'Lucro Bruto: **{lucro_bruto}**')
+                                    c3.markdown(f'Resultado Líquido: **{resultado_liquido}**')
+                                    c3.markdown(f'Rendimento Total: **{rendimento_total}**')
+                                    
+
+                                    lucro_bruto = df_trimestre.iloc[3]['Gross Profit Transformed']
+                                    resultado_liquido = df_trimestre.iloc[3]['Net Income Transformed']
+                                    rendimento_total = df_trimestre.iloc[3]['Total Revenue Transformed']
+                                    c4.markdown(f'{trimestres[3]}')
+                                    c4.markdown(f'Lucro Bruto: **{lucro_bruto}**')
+                                    c4.markdown(f'Resultado Líquido: **{resultado_liquido}**')
+                                    c4.markdown(f'Rendimento Total: **{rendimento_total}**')
 
                                 st.markdown("""---""")
 
-                                st.write(f"Exibindo Dados do Ticker: {list_selected[i]}")
-                                st.write(list_df_agrupados[i][display_columns])
 
-                                figCandlestick = exibirCanddleStick(list_df_agrupados[i], column_x, list_selected[i], title='Gráfico Candlestick da ação', width=1000, height=500, xlabel='Período', ylabel='Valores')
                                 
                                 lista_dias = [7, 15, 30]
                                 texto = 'Dias'
@@ -275,7 +277,10 @@ def main_page():
                                     lista_dias = [2, 3, 5]
                                     texto = 'Anos'
 
-
+                                st.write(f"Exibindo Dados do Ticker: {list_selected[i]}")
+                                st.write(list_df_agrupados[i][display_columns])
+                                figCandlestick = exibirCanddleStick(list_df_agrupados[i], column_x, list_selected[i], title='Gráfico Candlestick da ação', width=1000, height=500, xlabel='Período', ylabel='Valores')
+                                
 
                                 df_mediamovel = calculaMediaMovel(list_df_agrupados[i], days = lista_dias[0])
                                 figCandlestick = adicionarTrace(figCandlestick, df_mediamovel, x = column_x, y = 'MediaMovel', name= f'Média móvel {lista_dias[0]} {texto}', color = '#FF0')
@@ -288,91 +293,78 @@ def main_page():
                                 
                                 st.write(figCandlestick)
 
+
                             with tab02:
                                 
                                 st.markdown('### Resumo da empresa')
-                                c1, c2 = st.columns(2)
 
-                                
+                                if len(df_aux_info) == 0:
+                                    st.markdown("""**Não foi possível as informações sobre os detalhes da empresa.**""")
+                                else:
+                                    shortName = df_aux_info['shortName'].values[0]
+                                    longName = df_aux_info['longName'].values[0]
+                                    sector = df_aux_info['sector'].values[0]
+                                    industry = df_aux_info['industry'].values[0]
+                                    employees = df_aux_info['fullTimeEmployees'].values[0]
+                                    city = df_aux_info['city'].values[0]
+                                    country = df_aux_info['country'].values[0]
+                                    phone = df_aux_info['phone'].values[0]
+                                    website = df_aux_info['website'].values[0]
+                                    logo_url = df_aux_info['logo_url'].values[0]
+                                    longText = df_aux_info['longBusinessSummary'].values[0]
+                                    
 
-                                c1.markdown('**Informações Básicas**')
+                                    c1, c2 = st.columns(2)
+                                    c1.markdown('**Informações Básicas**')
+                                    c1.markdown(f'Nome abreviado: **{shortName}**')
+                                    c1.markdown(f'Nome completo: **{longName}**')
+                                    c1.markdown(f'Setor de atuação: **{sector}**')
+                                    c1.markdown(f'Tipo de serviço: **{industry}**')
+                                    c1.markdown(f'Quantidade de colaboradores: **{employees}**')
+                                    c2.markdown('**Informações de Endereço e Contato**')
+                                    c2.markdown(f'Tipo de serviço: **{industry}**')
+                                    c2.markdown(f'Pais da sede: **{country}**')
+                                    c2.markdown(f'Telefone: **{phone}**')
+                                    c2.markdown(f'Website: **{website}**')
+                                    c2.write('Logo da empresa')
+                                    c2.image(logo_url)
 
-                                shortName = df_aux_info['shortName'].values[0]
-                                c1.markdown(f'Nome abreviado: **{shortName}**')
-
-                                longName = df_aux_info['longName'].values[0]
-                                c1.markdown(f'Nome completo: **{longName}**')
-
-                                sector = df_aux_info['sector'].values[0]
-                                c1.markdown(f'Setor de atuação: **{sector}**')
-
-                                industry = df_aux_info['industry'].values[0]
-                                c1.markdown(f'Tipo de serviço: **{industry}**')
-
-                                employees = df_aux_info['fullTimeEmployees'].values[0]
-                                c1.markdown(f'Quantidade de colaboradores: **{employees}**')
-
-								
-                                ###########################################################
-                                c2.markdown('**Informações de Endereço e Contato**')
-                                
-                                city = df_aux_info['city'].values[0]
-                                c2.markdown(f'Tipo de serviço: **{industry}**')
-                                
-                                country = df_aux_info['country'].values[0]
-                                c2.markdown(f'Pais da sede: **{country}**')
-
-
-                                phone = df_aux_info['phone'].values[0]
-                                c2.markdown(f'Telefone: **{phone}**')
-
-                                website = df_aux_info['website'].values[0]
-                                c2.markdown(f'Website: **{website}**')
-
-                                logo_url = df_aux_info['logo_url'].values[0]
-                                c2.write('Logo da empresa')
-                                c2.image(logo_url)
-
-
-                                st.markdown("""---""")
-
-                                st.markdown('**Sobre a Empresa**')
-                                longText = df_aux_info['longBusinessSummary'].values[0]
-                                st.write(longText)
+                                    st.markdown("""---""")
+                                    st.markdown('**Sobre a Empresa**')
+                                    st.write(longText)
 
                                 st.markdown("""---""")
 
                                 df_sustainability = list_dfs_sustainability[i]
-                                mes = df_sustainability.columns.name
-
-                                st.markdown(f'**Avaliação de Sustentabilidade da organização no período {mes}**')
-
-                                x_values = df_sustainability.columns
-                                y_values = df_sustainability.values[0]
-
-                                c1, c2, c3, c4 = st.columns(4)
-
-                                c1.metric('Score Total', y_values[3])
-                                c2.metric('Score Social', y_values[0])
-                                c3.metric('Score Governamental', y_values[1])
-                                c4.metric('Score Ambiental', y_values[2])
-
-                                #fig = exibirGraficoSustentabilidade(x_values, y_values, 700, 300)
-                                #st.write(fig)
+                                if len(df_sustainability) == 0:
+                                    st.markdown("""**Não foi possível buscar informações sobre as pontuações de sustentabilidade da organização**""")
+                                
+                                else:
+                                    mes = df_sustainability.columns.name
+                                    x_values = df_sustainability.columns
+                                    y_values = df_sustainability.values[0]
 
 
+                                    st.markdown(f'**Avaliação de Sustentabilidade da organização no período {mes}**')
+                                    c1, c2, c3, c4 = st.columns(4)
+                                    c1.metric('Score Total', y_values[3])
+                                    c2.metric('Score Social', y_values[0])
+                                    c3.metric('Score Governamental', y_values[1])
+                                    c4.metric('Score Ambiental', y_values[2])
 
 
                             with tab03:
 
                                 st.markdown('### Últimas Notícias relacionadas ao Ativo')
-
                                 df_news = list_dfs_news[i]
 
-                                for row in df_news.iterrows():
-                                    st.markdown(f'<a target="_blank" href="{row[1].link}">{row[1].title}</a>', unsafe_allow_html=True)
-                                    st.caption(f'{row[1].publisher} {row[1].date}')
-                                    st.write('\n')
+                                if len(df_news) == 0:
+                                    st.markdown("""**Não foi possível buscar as últimas notícias relacionadas ao ativo.**""")
+                                else:
+                                    for row in df_news.iterrows():
+                                        st.markdown(f'<a target="_blank" href="{row[1].link}">{row[1].title}</a>', unsafe_allow_html=True)
+                                        st.caption(f'{row[1].publisher} {row[1].date}')
+                                        st.write('\n')
 
 
 
@@ -469,7 +461,7 @@ def main_page():
                     st.write('Os dados não foram carregados')
                 else:
                     c1, c2 = st.columns(2)
-                    period = c1.slider('Escolha a quantidade de períodos para a previsão.', 0, 120, 7)
+                    period = c1.slider('Escolha a quantidade de períodos para a previsão.', 0, 120, 15)
                     periodiocity = c2.number_input('Nível de Periodicidade. Valor recomendado: 15 períodos', value = 15, min_value = 5, max_value = 35)
                     
 

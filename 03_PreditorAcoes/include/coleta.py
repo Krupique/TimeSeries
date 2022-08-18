@@ -6,7 +6,7 @@ import datetime
 import yfinance as yf
 
 def coletaDados(list_codigos = [], interval = '1mo', start = '2015-01-01', end='2022-01-01'):
-    print('Iniciou a coleta dos dados...')
+    print('INICIOU COLETA DOS DADOS')
 
     df_info = pd.DataFrame()
     
@@ -24,13 +24,17 @@ def coletaDados(list_codigos = [], interval = '1mo', start = '2015-01-01', end='
     list_columns_news = ['title', 'publisher', 'providerPublishTime', 'link']
 
     
-    list_dfs = []
+    list_dfs_stock = []
     list_dfs_quartfinancials = []
     list_dfs_sustainability = []
     list_dfs_news = []
     try:
         list_rows_info = []
         for codigo in list_codigos:
+            print(f'Coletando dados do ticker: {codigo}')
+            print(f'Coletando histórico de ações...')
+            
+
             ticket = yf.Ticker(codigo)
             aux = ticket.history(interval=interval, start=start, end=end)
             #aux.reset_index(inplace=True)
@@ -39,48 +43,74 @@ def coletaDados(list_codigos = [], interval = '1mo', start = '2015-01-01', end='
             aux = expandirDataFrame(aux)
             aux.dropna(inplace=True)
 
-            list_dfs.append(aux)
+            list_dfs_stock.append(aux)
 
 
             # Info
+            print(f'Coletando informações adicionais...')
+
             info = ticket.info
-            list_values_info = []
-            for column in list_columns_info:
-                list_values_info.append(info[column])
+            aux = pd.DataFrame()
+            if ticket.info is not None:
+                list_values_info = []
+                for column in list_columns_info:
+                    if column in info.keys():
+                        list_values_info.append(info[column])
+                    else:
+                        list_values_info.append('None')
 
-            list_rows_info.append(list_values_info)
+                list_rows_info.append(list_values_info)
 
-        
-            # Quarterly Financials
-            quarterly_financials = ticket.quarterly_financials
-            aux = quarterly_financials.T[['Gross Profit', 'Net Income', 'Total Revenue']]
+            
+                # Quarterly Financials
+                print(f'Coletando histórico dos últimos trimestres...')
+
+                quarterly_financials = ticket.quarterly_financials
+                aux = quarterly_financials.T[['Gross Profit', 'Net Income', 'Total Revenue']]
 
             list_dfs_quartfinancials.append(aux)
                     
         
         
             # Sustainability
+            print(f'Coletando informações de sustentabilidade...')
+
             sustainability = ticket.sustainability
-            aux = sustainability.T[['socialScore', 'governanceScore', 'environmentScore', 'totalEsg']]
+            aux = pd.DataFrame()
+            if sustainability is not None:
+                aux = sustainability.T[['socialScore', 'governanceScore', 'environmentScore', 'totalEsg']]
 
             list_dfs_sustainability.append(aux)
 
 
             # News
+            print(f'Coletando últimas notícias...')
+
             news = ticket.news
-            list_rows_news = []
-            for i in range(len(news)):
+            aux = pd.DataFrame()
+            if news is not None:
+                list_rows_news = []
+                for i in range(len(news)):
 
-                list_values_news = []
-                for column in list_columns_news:
-                    list_values_news.append(news[i][column])
+                    list_values_news = []
+                    for column in list_columns_news:
 
-                list_rows_news.append(list_values_news)
+                        if column in news[i].keys():
+                            list_values_news.append(news[i][column])
+                        else:
+                            list_values_news.append('None')
+
+                    list_rows_news.append(list_values_news)
+                
+                aux = pd.DataFrame(list_rows_news, columns=list_columns_news)
+
+                aux['date'] = aux['providerPublishTime'].apply(timeStampToDate)
+
             
-            aux = pd.DataFrame(list_rows_news, columns=list_columns_news)
-
-            aux['date'] = aux['providerPublishTime'].apply(timeStampToDate)
             list_dfs_news.append(aux)
+
+
+            print(f'Coleta do ticker {codigo} concluída.\n############################')
         
         #Criando DataFrame de Info
         df_info = pd.DataFrame(list_rows_info, columns=list_columns_info, index=list_codigos)
@@ -88,12 +118,11 @@ def coletaDados(list_codigos = [], interval = '1mo', start = '2015-01-01', end='
 
 
 
-        return df_info, list_dfs, list_dfs_quartfinancials, list_dfs_sustainability, list_dfs_news
+        return df_info, list_dfs_stock, list_dfs_quartfinancials, list_dfs_sustainability, list_dfs_news
 
     except Exception as e: 
         print(e)
         return 'Erro: Erro ao ler os dados'
-
 
 
 def expandirDataFrame(df):

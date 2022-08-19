@@ -1,10 +1,4 @@
-import pandas as pd
-import numpy as np
-
 # Visualização dos dados
-import matplotlib.pyplot as plt
-import matplotlib as m
-import seaborn as sns
 import plotly.express as px
 import plotly.graph_objs as go
 import plotly.figure_factory as ff

@@ -1,7 +1,5 @@
 import pandas as pd
-# Computação estatística
 from statsmodels.tsa.seasonal import seasonal_decompose
-# Imports análise e modelagem de séries temporais
 from statsmodels.tsa.stattools import adfuller
 from numpy import abs
 

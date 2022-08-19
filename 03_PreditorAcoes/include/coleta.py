@@ -1,6 +1,6 @@
-import numpy as np
-import pandas as pd
 import datetime
+import pandas as pd
+
 
 # Pacote que fornece a API para comunicação com o Yahoo Finances
 import yfinance as yf

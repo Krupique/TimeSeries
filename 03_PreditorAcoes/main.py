@@ -1,12 +1,8 @@
 import time
-# Visualização dos dados
-import matplotlib.pyplot as plt
-import matplotlib as m
-import seaborn as sns
+
 import plotly.express as px
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
-
 
 import streamlit as st
 from datetime import date
@@ -18,6 +14,20 @@ from include.coleta import coletaDados, agrupaDados, geraDatas
 from include.graphs import exibirGrafico, exibirCanddleStick, adicionarTrace, exibirGraficoSustentabilidade
 from include.calculos import calculaRentabilidade, decomporSerie, calculaEstacionaridade, calculaMediaMovel, calculaDesvioPadrao, currencyFormatting
 from include.modelo import Preditor
+
+#
+import pandas as pd
+from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.stattools import adfuller
+from numpy import abs
+import datetime
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objs as go
+import plotly.figure_factory as ff
+import statsmodels.api as sm
+
+
 
 
 ################################################# Declaração de variáveis ##################################################
@@ -418,9 +428,9 @@ def main_page():
 
                                 valor_p = df_adfuller.loc[df_adfuller.index == 'Valor-p', 'Resultados'].values[0]
                                 if valor_p > 0.05:
-                                    c1.write('O valor-p é maior que 0.05 e, portanto, essa série provavelmente não é estacionária.')
+                                    c1.write('O valor-p é maior que 0.05 e, logo, não temos evidências o suficiente para rejeitar a hipótese nula. Essa série provavelmente não é estacionária.')
                                 else: 
-                                    c1.write('O valor-p é maior que 0.05 e, portanto, essa série provavelmente é estacionária.')
+                                    c1.write('O valor-p é maior que 0.05 e, logo, temos fortes evidências para rejeitar a hipótese nula. Essa série provavelmente é estacionária.')
 
                                 c2.write(figureBarPlot)
                                 c3.write(figureHistogram)

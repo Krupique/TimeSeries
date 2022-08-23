@@ -3,8 +3,9 @@ from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.stattools import adfuller
 from numpy import abs
 
+#O Objetivos desta biblioteca é realizar os principais calculos estatístico no projeto, os nomes das funções deste módulo são bastante intuitivas:
 
-
+# Função para calcular a rentabilidade do dataframe no atributo Close
 def calculaRentabilidade(list_dfs, list_tickers):
     list_rentabilidade_sum = []
     list_rentabilidade_mean = []
@@ -20,6 +21,10 @@ def calculaRentabilidade(list_dfs, list_tickers):
 
     return df_rentabilidade
 
+#Função que realiza a Decomposição da série em:
+# Tendência
+# Sazonalidade
+# Resíduos
 def decomporSerie(df, type, column):
     decomposicao = seasonal_decompose(df[['Close']], period=50, model = type, extrapolate_trend = 'freq')
 
@@ -44,6 +49,7 @@ def decomporSerie(df, type, column):
     return list_df_decomposition
 
 
+#Função que realiza o cálculo da Estacionaridade de um atributo no dataframe, utilizando o método de Dickey-Fuller.
 def calculaEstacionaridade(df, column):
     
     # Teste
@@ -67,17 +73,22 @@ def calculaEstacionaridade(df, column):
     return dfsaida
 
 
+# Realiza o cálculo da média móvel
 def calculaMediaMovel(df, days = 7):
     df['MediaMovel'] = df['Close'].rolling(window = days).mean()
 
     return df
 
+# Realiza o cálculo do Desvio Padrão
 def calculaDesvioPadrao(df, days = 30):
     df['DesvioPadrao'] = df['Close'].rolling(window = days).std()
 
     return df
 
 
+# Converte um valor numérico para string adicionando algumas notações:
+# Por exemplo: Entrada: 878.000.000
+# Saída: 878M
 def currencyFormatting(value):
     neg = '-' if value < 0 else '' 
     value = abs(value)

@@ -3,7 +3,9 @@ import plotly.express as px
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
 
+# O objetivo desta biblioteca é agregar todas as funções responsáveis para exibição de gráficos.
 
+# Cria gráfico de acordo com o parâmetro type, portanto, temos: Barplot, Line, Boxplot, Histogram.
 def exibirGrafico(list_df, list_tickers, x, y, type, title = 'Title Default', width = 1000, height = 400, xlabel = 'xlabel', ylabel = 'ylabel'):
     fig = go.Figure()
     
@@ -33,7 +35,7 @@ def exibirGrafico(list_df, list_tickers, x, y, type, title = 'Title Default', wi
 
     return fig
 
-
+# Gráfico CanddleStick, um dos mais utilizados para exibir as ações.
 def exibirCanddleStick(df, x, name = 'ticket', title = 'Title Default', width = 1000, height = 400, xlabel = 'xlabel', ylabel = 'ylabel'):
     trace1 = {
         'x': df[x],
@@ -66,13 +68,15 @@ def exibirCanddleStick(df, x, name = 'ticket', title = 'Title Default', width = 
 
     return fig
 
+# Adiciona mais uma camada no gráfico
 def adicionarTrace(fig, df, x, y = 'Close', name='Default', color='#FF0'):
 
     fig.add_traces(go.Line(x=df[x], y=df[y], name=name, marker={'color': color}))
 
     return fig
 
-
+# @Obsolete
+# Exibe gráfico de sustentabilidade
 def exibirGraficoSustentabilidade(x, y, width, height):
     fig = go.Figure()
 

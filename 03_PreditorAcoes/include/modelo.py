@@ -2,16 +2,16 @@ import statsmodels.api as sm
 from scipy.special import inv_boxcox
 from scipy.stats import boxcox
 
+# Criação do modelo. Este modelo foi escolhido de acordo com todas as nossas análises realizadas no arquivo notebook deste projeto.
+
 class Preditor:
-    
-    
+        
     def __init__(self, df, x, periodiocity):
 
         boxcox_values, self.lambda_value = boxcox(df[x])
         # Cria o Modelo SARIMA
         self.modelo = sm.tsa.statespace.SARIMAX(boxcox_values,
                                                 order = (1, 2, 1),
-                                                #seasonal_order = (2, 1, 0, 15),
                                                 seasonal_order = (2, 1, 0, int(periodiocity)),
                                                 enforce_stationarity = False,
                                                 enforce_invertibility = False)

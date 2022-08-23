@@ -17,10 +17,13 @@ def coletaDados(list_codigos = [], interval = '1mo', start = '2015-01-01', end='
     if len(list_codigos) == 0:
         return 'Erro: Insira um código de uma empresa listada.'
 
+    # Lista de atributos que serão trazidos da API no objeto Info
     list_columns_info = ['shortName', 'longName', 'sector', 'fullTimeEmployees', 'longBusinessSummary', 'city', 'phone', 'country', 'industry', 'financialCurrency',
                     'recommendationKey', 'recommendationMean', 'currentPrice', 'earningsGrowth', 'currentRatio', 'returnOnAssets', 'numberOfAnalystOpinions',
                     'targetMeanPrice', 'market', 'website', 'logo_url',
                     ]
+
+    # Lista de atributos que serão trazidos da API para o objeto News 
     list_columns_news = ['title', 'publisher', 'providerPublishTime', 'link']
 
     
@@ -35,9 +38,9 @@ def coletaDados(list_codigos = [], interval = '1mo', start = '2015-01-01', end='
             print(f'Coletando histórico de ações...')
             
 
+            # Busca o histórico de ações
             ticket = yf.Ticker(codigo)
             aux = ticket.history(interval=interval, start=start, end=end)
-            #aux.reset_index(inplace=True)
             aux['Ticket'] = codigo
 
             aux = expandirDataFrame(aux)
@@ -46,7 +49,7 @@ def coletaDados(list_codigos = [], interval = '1mo', start = '2015-01-01', end='
             list_dfs_stock.append(aux)
 
 
-            # Info
+            # Busca as informações
             print(f'Coletando informações adicionais...')
 
             info = ticket.info
@@ -124,17 +127,17 @@ def coletaDados(list_codigos = [], interval = '1mo', start = '2015-01-01', end='
         print(e)
         return 'Erro: Erro ao ler os dados'
 
-
+#Essa função recebe o dataframe com a coluna Date, e aplica a Granularidade na informação, quebrando ela em várias outras informações
 def expandirDataFrame(df):
     df.reset_index(inplace=True)
 
-    df['Year'] = df['Date'].dt.year
-    df['Month'] = df['Date'].dt.month
-    df['Day'] = df['Date'].dt.day
-    df['Week'] = df['Date'].dt.isocalendar().week
-    df['DayOfWeek'] = df['Date'].dt.dayofweek
-    df['YearMonth'] = pd.to_datetime(df['Date'].dt.strftime('%Y-%m'))
-    df['Data'] = df['Date'].dt.strftime('%Y/%m/%d')
+    df['Year'] = df['Date'].dt.year #Criação do atributo Year
+    df['Month'] = df['Date'].dt.month #Criação do atributo Month 
+    df['Day'] = df['Date'].dt.day #Criação do atributo Day
+    df['Week'] = df['Date'].dt.isocalendar().week #Criação do atributo Week
+    df['DayOfWeek'] = df['Date'].dt.dayofweek #Criação do atributo Day of Week
+    df['YearMonth'] = pd.to_datetime(df['Date'].dt.strftime('%Y-%m')) #Criação do atributo Year/Month
+    df['Data'] = df['Date'].dt.strftime('%Y/%m/%d') #Criação do atributo Year/Month/Day
     
 
 
@@ -163,21 +166,20 @@ def expandirDataFrame(df):
         12: 'December'
     }
 
-    df['NameMonths'] = df['Month'].map(months_map)
+    df['NameMonths'] = df['Month'].map(months_map) #Criação do atributo Months Names
 
-    df['NameDayOfWeek'] = df['DayOfWeek'].map(dayweek_map)
+    df['NameDayOfWeek'] = df['DayOfWeek'].map(dayweek_map) #Criação do atributo Days of Weeks Name
 
     return df
 
 
-
+# Função que realiza o agrupamento dos dados, por: Somatório, Média ou Mediana.
 def agrupaDados(list_df, columns, tipo_agrupamento):
     list_res = []
 
     tipo_agrupamento = 'mean' if tipo_agrupamento == 'Média' else 'sum' if tipo_agrupamento == 'Somatório' else 'median' 
 
     for df in list_df:
-        #aux_df = df.groupby(columns, as_index=False).agg([tipo_agrupamento])
         aux_df = df.groupby(columns, as_index=False).agg(tipo_agrupamento)
         if columns[0] == 'YearMonth':
             aux_df['Year Month'] = aux_df['YearMonth'].dt.strftime('%Y/%m')
@@ -189,7 +191,7 @@ def agrupaDados(list_df, columns, tipo_agrupamento):
     return list_res
 
 
-
+# Função responsável por criar um dataframe gerando datas de acordo com o agrupamento selecionado, por Dia, Mês, Week e Ano. 
 def geraDatas(dados, dataInicial, agrupamento):
     
     quantidade = len(dados) + 1
@@ -244,7 +246,7 @@ def geraDatas(dados, dataInicial, agrupamento):
 
     return df
 
-
+# Converte um valor inteiro para Data
 def timeStampToDate(value):
     try:
         date = datetime.datetime.fromtimestamp(value)

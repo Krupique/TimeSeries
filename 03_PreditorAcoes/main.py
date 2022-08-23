@@ -11,30 +11,16 @@ import pandas as pd
 import numpy as np
 
 from include.coleta import coletaDados, agrupaDados, geraDatas
-from include.graphs import exibirGrafico, exibirCanddleStick, adicionarTrace, exibirGraficoSustentabilidade
+from include.graphs import exibirGrafico, exibirCanddleStick, adicionarTrace
 from include.calculos import calculaRentabilidade, decomporSerie, calculaEstacionaridade, calculaMediaMovel, calculaDesvioPadrao, currencyFormatting
 from include.modelo import Preditor
 
-#
-import pandas as pd
-from statsmodels.tsa.seasonal import seasonal_decompose
-from statsmodels.tsa.stattools import adfuller
-from numpy import abs
-import datetime
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objs as go
-import plotly.figure_factory as ff
-import statsmodels.api as sm
-
-
-
-
-################################################# Declaração de variáveis ##################################################
 df = []
 list_tickers = []
 
-################################################# Funções e métodos Python ##################################################
+# Carrega arquivo de siglas(tickers) disponíveis
+# O arquivo lista_siglas é customizável, portanto, caso deseje incluir mais organizações, basta navegar até este arquivo e adicionar suas próprias ações.
+# Vale lembrar que para um ticker personalizado é necessário que este ticker esteja disponível no Yahoo Finance e que esteja funcionando de acordo com o padrão da API.
 ref_file = open("utils/lista_siglas.txt","r")
 for row in ref_file:
     row = row.upper().replace('\n', '')
@@ -42,8 +28,7 @@ for row in ref_file:
 
 ref_file.close() 
 
-################################################# Funções e métodos Streamlit ##################################################
-#st.set_page_config(layout='wide')
+# Configurações básicas da página
 st.set_page_config(
     page_title="Preditor de Ações",
     page_icon="🧊",
@@ -56,6 +41,8 @@ st.set_page_config(
     }
 )
 
+# @Obsolete 
+# Adiciona seu próprio ticker ao cache 
 def add_ticker_cache(own_ticker):
     if 'list_own_tickers' not in st.session_state:
         st.session_state['list_own_tickers'] = [own_ticker]
@@ -65,7 +52,7 @@ def add_ticker_cache(own_ticker):
 
     list_tickers.extend(st.session_state['list_own_tickers'])
 
-
+# Barra lateral com o logo, informações do criador do site, links direcionando ao repositório
 def sidebar_features():
 
     st.sidebar.markdown("<h1 style='text-align: center; color: black;'>Stock Analytics</h1>", unsafe_allow_html=True)
@@ -82,30 +69,31 @@ def sidebar_features():
     st.sidebar.markdown('<div style="text-align: justify; padding:5px; color:#1e6777; border-radius:3px; background-color:#dbe6f4; border: 1px solid #c8dcf3;">Você pode me encontrar em:<ul><li><a target="_blank" href="https://www.linkedin.com/in/henrique-krupck/">Linkedin</a></li><li><a target="_blank" href="https://github.com/krupique">Github</a></li><li><a target="_blank" href="mailto:krupck@outlook.com">Email</a></li></ul></div>', unsafe_allow_html=True)
 
 
-
+# Essa função valida se houve alterações por parte do usuário nos campos que foram passados por parâmetro
 def validar_alteracoes(list_selected, input_dt_ini, input_dt_fim, option, tipo_agrupamento):
     resultado = True
 
+    # Se a variável booleana não estiver no cache da sessão, então adiciona ao cache
     if 'validar_alteracoes' not in st.session_state:
         st.session_state['validar_alteracoes'] = True
 
     else:
-        #if not (st.session_state['list_selected'] == list_selected and st.session_state['input_dt_ini'] == input_dt_ini and st.session_state['input_dt_fim'] == input_dt_fim and  st.session_state['option'] == option and st.session_state['tipo_agrupamento'] == tipo_agrupamento):
+        #Se não houve alterações por parte do usuário, então o resultado é Falso
         if not (st.session_state['list_selected'] == list_selected and st.session_state['input_dt_ini'] == input_dt_ini and st.session_state['input_dt_fim'] == input_dt_fim):
             resultado = False
 
+    #Adiciona os dados ao cache
     st.session_state['list_selected'] = list_selected
     st.session_state['input_dt_ini'] = input_dt_ini
     st.session_state['input_dt_fim'] = input_dt_fim
-    #st.session_state['option'] = option
-    #st.session_state['tipo_agrupamento'] = tipo_agrupamento
 
     return resultado
 
 
-
+# Página principal, aqui que tudo acontece
 def main_page():
 
+    #Inputs
     list_selected = st.multiselect( 'Selecione a empresa', list_tickers)
     c1, c2, c3, c4 = st.columns(4)
 
@@ -116,11 +104,11 @@ def main_page():
 
 
     flag_coleta = False
-    if st.button('Coletar Dados'):
+    #Evento do clique coletar dados
+    if st.button('Coletar Dados'): #Se clicou no botão coletar dados, então adicione todos os dados obtidos ao cache.
         df_info, list_dfs, list_dfs_quartfinancials, list_dfs_sustainability, list_dfs_news = coletaDados(list_selected, interval='1d', start=input_dt_ini.strftime("%Y-%m-%d"), end=input_dt_fim.strftime("%Y-%m-%d"))
         flag_coleta = True
-
-        #if 'flag' not in st.session_state:
+        
         st.session_state['flag'] = 'OK'
 
         st.session_state['df_info'] = df_info
@@ -128,8 +116,9 @@ def main_page():
         st.session_state['list_dfs_quartfinancials'] = list_dfs_quartfinancials
         st.session_state['list_dfs_sustainability'] = list_dfs_sustainability
         st.session_state['list_dfs_news'] = list_dfs_news
-    else:
+    else: #Senão, valida as alterações
         if validar_alteracoes(list_selected, input_dt_ini, input_dt_fim, option, tipo_agrupamento):
+            #Se validou as informações, então adiciona os dados coletados ao cache
             if 'flag' in st.session_state:
                 flag_coleta = True
                 df_info = st.session_state['df_info']
@@ -142,12 +131,17 @@ def main_page():
             flag_coleta = False
             
 
+    #Criamos três abas, uma para cada tipo de análise.
     tab1, tab2, tab3 = st.tabs(['Visão Geral dos Dados', 'Análise Estatística', 'Análise Preditiva'])
 
+    # Se o usuário selecionou um ticker e os dados foram coletados
     if len(list_selected) > 0 and flag_coleta:
 
+        #Se a data inicial for menor que a data final e a data inicial for menor do que hoje
         if input_dt_ini < input_dt_fim and input_dt_ini < date.today():
 
+            # Qual foi a opção de agrupamento, dia, semana, mês ou ano?
+            # Verifica e agrupa os dados de acordo com a opção escolhida
             if option == 'Dia':
                 column_x = 'Date'
                 list_df_agrupados = list_dfs
@@ -169,7 +163,7 @@ def main_page():
                 display_columns = ['Year', 'Open', 'High', 'Low', 'Close', 'Volume']
 
 
-
+            #Tudo referente a aba de visão geral dos dados
             with tab1:
                 st.header('Visão Geral dos Dados')
 
@@ -394,7 +388,7 @@ def main_page():
                     c2.write(figureTimeSerie)
 
 
-
+            #Tudo referente a aba de Análise Estatística
             with tab2:
                 st.header('Análise Estatística')
                 if len(list_dfs) == 0:
@@ -465,6 +459,7 @@ def main_page():
                             else:
                                 st.write('É necessário uma quantidade de períodos maior do que três [3] para verificar as medidas estatísticas.')
 
+            #Tudo referente a aba de Análise Preditiva
             with tab3:
                 st.header('Análise Preditiva')
                 if len(list_dfs) == 0:
@@ -521,7 +516,6 @@ def main_page():
 ###############################################################################################################
 if __name__ == '__main__':
 
-    # transformation
     sidebar_features()
 
     main_page()

@@ -4515,7 +4515,7 @@ Por fim, é possível realizar a previsão dos ativos para os próximos período
 
 * [5] Reis, Tiago, 2017. *O que são ações Ordinárias, Preferenciais e Units?*. Disponível em:<[suno.com](https://www.suno.com.br/artigos/o-que-sao-acoes-ordinarias-preferenciais-e-units/)>
 	
-* [6] Reis, Tiago, 2020. *O que são Units? Entenda como funciona esse tipo de ação*. Disponível em:<[suno.com](https://www.suno.com.br/artigos/units/#:~:text=As%20Units%20são%20um%20tipo%20de%20ativo%2C%20negociadas%20no%20mercado,PN)%20e%20bônus%20de%20subscrição.)>
+* [6] Reis, Tiago, 2020. *O que são Units? Entenda como funciona esse tipo de ação*. Disponível em:<[suno.com](https://www.suno.com.br/artigos/units/#:~:text=As%20Units%20são%20um%20tipo%20de%20ativo%2C%20negociadas%20no%20mercado,PN%20e%20bônus%20de%20subscrição.)>
 
 * [7] Smigel, Leo, 2022. *What Is Stationarity? A Visual Guide*. Disponível em:<[analyzingalpha](https://analyzingalpha.com/stationarity)>
 

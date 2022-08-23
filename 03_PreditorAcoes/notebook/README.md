@@ -4504,22 +4504,22 @@ Por fim, é possível realizar a previsão dos ativos para os próximos período
 
 <h3 id="id-8.3">8.3) Referências</h3>
 
-* [1] Data Science Academy, 2021. *Análise Estatística e Modelagem Preditiva de Séries Temporais*. Disponível somente para quem comprou algum outro curso pago da [plataforma](datascienceacademy.com.br)
+* [1] Data Science Academy, 2021. *Análise Estatística e Modelagem Preditiva de Séries Temporais*. Disponível somente para quem comprou algum outro curso pago da [plataforma](datascienceacademy.com.br){:target="_blank"}
 
-* [2] Equipe Toro Investimentos, 2022. *O que são ações? Entenda as ordinárias e preferenciais e como comprar!*. Disponível em:<[toroinvestimentos.com](https://blog.toroinvestimentos.com.br/o-que-sao-acoes-ordinaria-preferencial)>
+* [2] Equipe Toro Investimentos, 2022. *O que são ações? Entenda as ordinárias e preferenciais e como comprar!*. Disponível em:<[toroinvestimentos.com](https://blog.toroinvestimentos.com.br/o-que-sao-acoes-ordinaria-preferencial){:target="_blank"}>
 
-* [3] Leite, Vitor, 2021. *O que são ações e o que significa “investir na Bolsa”?*. Disponível em:<[nubank.com](https://blog.nubank.com.br/o-que-sao-acoes/)>
+* [3] Leite, Vitor, 2021. *O que são ações e o que significa “investir na Bolsa”?*. Disponível em:<[nubank.com](https://blog.nubank.com.br/o-que-sao-acoes/){:target="_blank"}>
 
-* [4] Myers, D.E., 1989. *To be or not to be . . . stationary?* That is the question. Disponível em:<[arizona.edu](http://www.u.arizona.edu/~donaldm/homepage/my_papers/MathGeology_21_1989_347-363.pdf)>
+* [4] Myers, D.E., 1989. *To be or not to be . . . stationary?* That is the question. Disponível em:<[arizona.edu](http://www.u.arizona.edu/~donaldm/homepage/my_papers/MathGeology_21_1989_347-363.pdf){:target="_blank"}>
 
 
-* [5] Reis, Tiago, 2017. *O que são ações Ordinárias, Preferenciais e Units?*. Disponível em:<[suno.com](https://www.suno.com.br/artigos/o-que-sao-acoes-ordinarias-preferenciais-e-units/)>
+* [5] Reis, Tiago, 2017. *O que são ações Ordinárias, Preferenciais e Units?*. Disponível em:<[suno.com](https://www.suno.com.br/artigos/o-que-sao-acoes-ordinarias-preferenciais-e-units/){:target="_blank"}>
 	
-* [6] Reis, Tiago, 2020. *O que são Units? Entenda como funciona esse tipo de ação*. Disponível em:<[suno.com](https://www.suno.com.br/artigos/units/#:~:text=As%20Units%20são%20um%20tipo%20de%20ativo%2C%20negociadas%20no%20mercado,PN)%20e%20bônus%20de%20subscrição.)>
+* [6] Reis, Tiago, 2020. *O que são Units? Entenda como funciona esse tipo de ação*. Disponível em:<[suno.com](https://www.suno.com.br/artigos/units/#:~:text=As%20Units%20são%20um%20tipo%20de%20ativo%2C%20negociadas%20no%20mercado,PN)%20e%20bônus%20de%20subscrição.){:target="_blank"}>
 
-* [7] Smigel, Leo, 2022. *What Is Stationarity? A Visual Guide*. Disponível em:<[analyzingalpha](https://analyzingalpha.com/stationarity)>
+* [7] Smigel, Leo, 2022. *What Is Stationarity? A Visual Guide*. Disponível em:<[analyzingalpha](https://analyzingalpha.com/stationarity){:target="_blank"}>
 
-* [8] Pérez, Fernando, 2022. *Análise de Séries Temporais. Capítulo III. Modelos ARIMA*. Disponível em:<[ufpr.br](http://leg.ufpr.br/~lucambio/STemporais/STemporaisIII.html)>
+* [8] Pérez, Fernando, 2022. *Análise de Séries Temporais. Capítulo III. Modelos ARIMA*. Disponível em:<[ufpr.br](http://leg.ufpr.br/~lucambio/STemporais/STemporaisIII.html){:target="_blank"}>
 
 ---
 

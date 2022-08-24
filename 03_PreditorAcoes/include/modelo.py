@@ -9,7 +9,7 @@ class Preditor:
     def __init__(self, df, x, periodiocity):
 
         boxcox_values, self.lambda_value = boxcox(df[x])
-        # Cria o Modelo SARIMA
+        # Criação do Modelo SARIMA
         self.modelo = sm.tsa.statespace.SARIMAX(boxcox_values,
                                                 order = (1, 2, 1),
                                                 seasonal_order = (2, 1, 0, int(periodiocity)),

@@ -1,14 +1,12 @@
-import time
-
-import plotly.express as px
-import plotly.graph_objs as go
-import plotly.figure_factory as ff
+#
+#  @author: Henrique Krupck Secchi.
+# 
+#  All rights reserved.
+#
 
 import streamlit as st
 from datetime import date
 from PIL import Image
-import pandas as pd
-import numpy as np
 
 from include.coleta import coletaDados, agrupaDados, geraDatas
 from include.graphs import exibirGrafico, exibirCanddleStick, adicionarTrace
@@ -170,20 +168,23 @@ def main_page():
                 if len(list_dfs) == 0:
                     st.write('Os dados não foram carregados')
                 else:
-                    tabs_empresas = st.tabs(list_selected)
+                    tabs_empresas = st.tabs(list_selected) #Cria uma aba para cada empresa selecionada
 
 
                     for i in range(len(tabs_empresas)):
                         with tabs_empresas[i]:
 
+                            #Cria a aba para trazer as seguintes informações: Dados de Ações, o Resumo da Empresa e as notícias
                             tab01, tab02, tab03 = st.tabs(['Dados de Ações', 'Resumo da empresa', 'Notícias'])
                             
+                            #Selecionando o dataframe referente a empresa específica
                             df_aux_info = df_info.loc[df_info.index == list_selected[i]]
 
                             with tab01:
 
                                 st.markdown('### Informações do Ativo')
                                 
+                                #Exibe informações referentes ao resumo da empresa
                                 if len(df_aux_info) == 0:
                                     st.markdown("""**Não foi possível as informações sobre os detalhes da empresa.**""")
                                 else:
@@ -214,6 +215,7 @@ def main_page():
                                 st.markdown("""---""")
                                 st.markdown("**Resultados dos últimos trimestres**")
                                 
+                                #Informações trimestrais
                                 df_trimestre = list_dfs_quartfinancials[i]
                                 if len(df_trimestre) == 0:
                                     st.markdown("""**Não foi possível obter as informações sobre os detalhes da empresa.**""")
@@ -266,7 +268,7 @@ def main_page():
                                 st.markdown("""---""")
 
 
-                                
+                                # Esse trecho é para exibir as médias móveis coerentes com dias, meses, semanas e anos.
                                 lista_dias = [7, 15, 30]
                                 texto = 'Dias'
                                 if column_x == 'Week':
@@ -281,6 +283,7 @@ def main_page():
                                     lista_dias = [2, 3, 5]
                                     texto = 'Anos'
 
+                                # Exbindo o gráfico canddlestick do ativo
                                 st.write(f"Exibindo Dados do Ticker: {list_selected[i]}")
                                 st.write(list_df_agrupados[i][display_columns])
                                 figCandlestick = exibirCanddleStick(list_df_agrupados[i], column_x, list_selected[i], title='Gráfico Candlestick da ação', width=1000, height=500, xlabel='Período', ylabel='Valores')
@@ -298,10 +301,12 @@ def main_page():
                                 st.write(figCandlestick)
 
 
+                            #Essa aba exibe o resumo da empresa
                             with tab02:
                                 
                                 st.markdown('### Resumo da empresa')
 
+                                # Informações básicas
                                 if len(df_aux_info) == 0:
                                     st.markdown("""**Não foi possível as informações sobre os detalhes da empresa.**""")
                                 else:
@@ -334,7 +339,7 @@ def main_page():
                                     c2.image(logo_url)
 
                                     st.markdown("""---""")
-                                    st.markdown('**Sobre a Empresa**')
+                                    st.markdown('**Sobre a Empresa**') #Sobre a empresa
                                     st.write(longText)
 
                                 st.markdown("""---""")
@@ -344,6 +349,7 @@ def main_page():
                                     st.markdown("""**Não foi possível buscar informações sobre as pontuações de sustentabilidade da organização**""")
                                 
                                 else:
+                                    #Informações de sustentabilidade
                                     mes = df_sustainability.columns.name
                                     x_values = df_sustainability.columns
                                     y_values = df_sustainability.values[0]
@@ -394,14 +400,12 @@ def main_page():
                 if len(list_dfs) == 0:
                     st.write('Os dados não foram carregados')
                 else:
-                    optionDecompose = st.radio(
-                            "Escolha o tipo de decomposição: ",
-                            ('Aditiva', 'Multiplicativa'))
+                    #Opção sobre o tipo de decomposição para o usuário selecionar 
+                    optionDecompose = st.radio( "Escolha o tipo de decomposição: ", ('Aditiva', 'Multiplicativa'))
 
 
-                    tabs_empresas = st.tabs(list_selected)
+                    tabs_empresas = st.tabs(list_selected) #De novo, criando uma aba para cada empresa na aba de análise estatística.
                     
-
                     for i in range(len(tabs_empresas)):
                         with tabs_empresas[i]:
 
@@ -409,12 +413,14 @@ def main_page():
 
                                 st.write(f"Exibindo Dados do Ticker: {list_selected[i]}")
 
+                                #Obtendo o gráfico boxplot e o histograma
                                 figureBarPlot = exibirGrafico([list_dfs[i]], type='box', list_tickers = list_selected, x='Year', y='Close', title='Boxplot por ano para análise interquartil', xlabel='Período', ylabel='Valor', width=300, height=400)
                                 figureHistogram = exibirGrafico([list_df_agrupados[i]], type='histogram',list_tickers = list_selected , x='Close', y='Close', title='Histograma com valores de Fechamento', xlabel='Valores', ylabel='Quantidade', width=300, height=400)
                                 
+                                #Calculo da estacionaridade da série temporal
                                 df_adfuller = calculaEstacionaridade(list_df_agrupados[i], 'Close')
                                 
-
+                                # Criando três colunas para exibir os dados anteriores (boxplot, histograma e calculo da estacionaridade)
                                 c1, c2, c3 = st.columns(3)
 
                                 c1.write('Teste Dickey-Fuller aumentado')
@@ -431,6 +437,7 @@ def main_page():
 
                                 st.markdown("""---""")
 
+                                # Vai exibir a série decomposta somente se a série temporal conter mais de 100 registros de tempo.
                                 if len(list_df_agrupados[i]) > 100:
                                     if optionDecompose == 'Aditiva':
                                         list_df_decomposition = decomporSerie(list_df_agrupados[i], 'aditive', column_x)
@@ -466,6 +473,7 @@ def main_page():
                     st.write('Os dados não foram carregados')
                 else:
                     c1, c2 = st.columns(2)
+                    # Criação dos inputs que fornecem opções ao usuário sobre a análise preditiva
                     period = c1.slider('Escolha a quantidade de períodos para a previsão.', 0, 120, 15)
                     periodiocity = c2.number_input('Nível de Periodicidade. Valor recomendado: 15 períodos', value = 15, min_value = 5, max_value = 35)
                     
@@ -474,9 +482,9 @@ def main_page():
                     c2.write('NOTA: Valores baixos são mais velozes em performance, valores altos são mais precisos, porém mais custosos.')
                     
                     
-                    clicked = st.button("Treinar o modelo")
+                    clicked = st.button("Treinar o modelo") # Botão de treinar o modelo
 
-                    tabs_empresas = st.tabs(list_selected)
+                    tabs_empresas = st.tabs(list_selected) # Novamente, uma aba para cada empresa
 
 
                     for i in range(len(tabs_empresas)):
@@ -490,15 +498,17 @@ def main_page():
                                     st.write('Não é possível realizar previsões para este tipo de agrupamento. Por favor, tente utilizar Dias [Date], Mês [YearMonth] ou Ano [Year]')
 
                                 else:
-                                    preditor = Preditor(list_df_agrupados[i], 'Close', periodiocity)
-                                    previsoes = preditor.predict(period = period)
+                                    preditor = Preditor(list_df_agrupados[i], 'Close', periodiocity) # Criação da class preditora
+                                    previsoes = preditor.predict(period = period) # Realizando a previsão
 
-                                    dataInicial = list_df_agrupados[i].iloc[-1][column_x]
-                                    df_previsoes = geraDatas(previsoes, dataInicial, column_x)
+                                    dataInicial = list_df_agrupados[i].iloc[-1][column_x] # Pegando a primeira data a partir da data final para criar o array de datas previstas
+                                    df_previsoes = geraDatas(previsoes, dataInicial, column_x) # Utilizando a função geraDatas para criar o dataframe contendo as datas das previsões e os valores previstos
 
+                                    # Exibição do gráfico da série temporal com os valores reais e o gráfico com os valores previstos
                                     figureTimeSerie = exibirGrafico([list_df_agrupados[i]], ['Valores Reais'], type='line', x=column_x, y='Close', title=f'Série Temporal agrupada por {column_x} [Valor de Fechamento da ação e Previsões realizadas]', xlabel='Período', ylabel='Valor', width=700)
                                     figureTimeSerie = adicionarTrace(fig = figureTimeSerie, df = df_previsoes, x = column_x, y = 'Valores Previstos', name='Valores Previstos', color='#FF0')
 
+                                    # Exibindo o gráfico e o dataframe
                                     c1, c2 = st.columns([0.3, 0.7])
                                     c1.write('Tabela com valores previstos pelo modelo')
                                     c1.write(df_previsoes[['Data', 'Valores Previstos']])
@@ -509,13 +519,11 @@ def main_page():
         else:
             st.write('A data inicial deve ser menor que a data final e a data inicial deve ser menor que o dia atual')
 
-        
-
-
 
 ###############################################################################################################
-if __name__ == '__main__':
+#Função main do projeto
 
+if __name__ == '__main__':
     sidebar_features()
 
     main_page()

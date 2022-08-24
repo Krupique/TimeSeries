@@ -38,9 +38,17 @@ Arquivos dentro dos diretórios:
 
 
 ## COMO EXECUTAR O PROJETO
+Para executar o projeto em sua máquina local, certifique-se de ter instalado todas as dependências descritas nos arquivos `requirements.txt` e `runtime.txt`, navegue via terminal até o diretório do arquivo `main.py`, então execute o comando:
+> `>streamlit run main.py`
 
+Para executar o projeto de análises, tenha alguma `IDE` ou `Editor de Texto` que seja capaz de ler e executar arquivos `ipynb`, então abra o arquivo `notebook/notebook.ipynb` e execute célula por célula.
+
+Para utilizar a aplicação web, acesse o seguinte link: <a target="_blank" href="https://app-stock-exchange.herokuapp.com">`app-stock-exchange`</a>
 
 ## COMO VISUALIZAR AS ANÁLISES
+O arquivo notebook deste projeto já está compilado e executado, portanto, não é necessário re-executar para visualizar os resultados obtidos. Dentro do diretório notebook/ o arquivo README contém toda a descrição da análise.
+
+É possível navegar pelo sumário do projeto até a análise desejada.
 
 
 ### Sumário do projeto

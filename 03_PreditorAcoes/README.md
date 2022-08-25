@@ -12,7 +12,7 @@ Os dados são coletados via API fornecida pelo Yahoo. O usuário pode definir a 
 
 O usuário pode cadastrar seu próprio Ticker localmente, caso o mesmo não esteja disponível nas opções pré-definidas.
 
-O projeto traz uma análise exploratória, descritiva, estatística e preditiva utilizando diversas ferramentas e técnicas empregadas no uso de análise de séries temporais. Eu procurei detalhar o máximo possível dos conceitos e técnicas utilizadas para que este projeto possa servir de fonte de estudos a quem interessar.
+O projeto traz uma análise exploratória, descritiva, estatística e preditiva utilizando diversas ferramentas e técnicas empregadas no uso de análise de séries temporais. Eu procurei detalhar o máximo possível dos conceitos e técnicas utilizadas para que este projeto possa servir como fonte de estudos a quem interessar.
 
 ## ORGANIZAÇÃO DOS DIRETÓRIOS
 Arquivos na raiz do diretório:
@@ -41,12 +41,12 @@ Arquivos dentro dos diretórios:
 Para executar o projeto em sua máquina local, certifique-se de ter instalado todas as dependências descritas nos arquivos `requirements.txt` e `runtime.txt`, navegue via terminal até o diretório do arquivo `main.py`, então execute o comando:
 > `>streamlit run main.py`
 
-Para executar o projeto de análises, tenha alguma `IDE` ou `Editor de Texto` que seja capaz de ler e executar arquivos `ipynb`, então abra o arquivo `notebook/notebook.ipynb` e execute célula por célula.
+Para executar o projeto de análises, tenha alguma `IDE` ou `Editor de Texto` que seja capaz de ler e executar arquivos com a extensão `.ipynb`, então abra o arquivo `notebook/notebook.ipynb` e execute célula por célula.
 
 Para utilizar a aplicação web, acesse o seguinte link: <a target="_blank" href="https://app-stock-exchange.herokuapp.com">`app-stock-exchange`</a>
 
 ## COMO VISUALIZAR AS ANÁLISES
-O arquivo notebook deste projeto já está compilado e executado, portanto, não é necessário re-executar para visualizar os resultados obtidos. Dentro do diretório notebook/ o arquivo README contém toda a descrição da análise.
+O arquivo notebook deste projeto já está compilado e executado, portanto, não é necessário reexecutar para visualizar os resultados obtidos. Dentro do diretório `notebook/` o arquivo `README` contém toda a descrição da análise.
 
 É possível navegar pelo sumário do projeto até a análise desejada.
 

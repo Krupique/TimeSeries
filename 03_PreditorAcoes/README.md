@@ -4,6 +4,11 @@ Repositório contendo o projeto Preditor de Ações utilizando o Streamlit
 
 > A aplicação pode ser executada direto no servidor do heroku: <a target="_blank" href="https://app-stock-exchange.herokuapp.com">app-stock-exchange</a>
 
+## VÍDEO DE DEMONSTRAÇÃO DO PROJETO
+
+[![Watch the video](assets/video_thumb.png)](https://www.youtube.com/watch?v=-W0SFJQIW8Q)
+
+
 ## INTRODUÇÃO
 
 Este projeto teve por objetivo, o desenvolvimento de um modelo capaz de prever o preço das ações em um futuro próximo e determinar se o ativo vai se valorizar ou desvalorizar.

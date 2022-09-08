@@ -4,10 +4,15 @@ Repositório contendo o projeto Preditor de Ações utilizando o Streamlit
 
 > A aplicação pode ser executada direto no servidor do heroku: <a target="_blank" href="https://app-stock-exchange.herokuapp.com">app-stock-exchange</a>
 
+> `Nota: O projeto foi hospedado no servidor gratuito do Heroku. Portanto, uma possível lentidão pode ser causada pelo fato de estar em um ambiente gratuito e com limitações`.
+
 ## VÍDEO DE DEMONSTRAÇÃO DO PROJETO
 
-[![Watch the video](assets/video_thumb.png)](https://www.youtube.com/watch?v=-W0SFJQIW8Q)
+Clique para assistir o vídeo de demonstração das funcionalidades do projeto.
 
+<a href="https://www.youtube.com/watch?v=-W0SFJQIW8Q">
+<img src="assets/video_thumb.png" width="450">
+</a>
 
 ## INTRODUÇÃO
 

@@ -1,7 +1,8 @@
-#
-#  @author: Henrique Krupck Secchi.
+#   Stock Preditor
 # 
-#  All rights reserved.
+#   @author: Henrique Krupck Secchi.
+# 
+#   All rights reserved.
 #
 
 import streamlit as st
